@@ -180,3 +180,17 @@
   color: white;
   opacity: 0;
 }
+
+.loader {
+  border-top-color: #3498db; /* You can adjust the color here */
+  animation: spinner 1.5s linear infinite;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

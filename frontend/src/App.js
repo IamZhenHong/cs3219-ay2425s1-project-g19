@@ -78,7 +78,7 @@ function App() {
             <div className="flex-1 flex flex-col bg-[#ffffff]">
               <Header />
               <main className="pr-[20rem] pb-[1.5rem] flex h-full">
-                <div className="main-layout flex-1 bg-[#EDEDED] border-2 border-white rounded-[1.5rem] overflow-auto">
+                <div className="main-layout flex-1 bg-[#EDEDED] border-2 border-[#0F0A3C] rounded-[1.5rem] overflow-auto">
                   <Routes>
                     <Route path="/" element={<MatchingPage />} />
                     <Route path="/settings" element={<SettingPage />} />

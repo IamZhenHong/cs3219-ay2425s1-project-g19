@@ -3,6 +3,8 @@ import MatchForm from "../../components/student/MatchForm";
 import { getMatch } from "../../api/MatchingApi";
 import { getUserByEmail } from "../../api/UserApi";
 import { UserContext } from "../../App";
+import matchingPicture from "../../assets/matching-picture.png";
+import Loader from "../../components/utils/Loader";
 
 const timeout = 30; // Timeout value in seconds
 
@@ -160,12 +162,15 @@ const MatchingPage = () => {
   }
 
   return (
-    <div className="Matching m-[1rem]">
-      <h1>Wanna practice coding with your peer?</h1>
+    <div className="Matching flex flex-col w-full h-full bg-white px-4">
       <MatchForm onSubmit={handleMatchRequest} />
-      <div className="flex items-center justify-center">
+      <div className="flex flex-col items-center justify-center py-2">
+        {isMatching && <Loader/>}
         <p>{status}</p>
         {isMatching && <p>Time remaining: {countdown} seconds</p>}
+      </div>
+      <div className="flex justify-center items-center pt-8">
+        <img src={matchingPicture} className="w-[860px] h-[460px]"alt="icon"/>
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ const MatchForm = ({ onSubmit }) => {
     <form id="matchForm" onSubmit={handleSubmit}>
       <div className="form-group mb-4">
         <div className="col">
-          <label className="gray-label" htmlFor="category">
+          <label className="gray-label flex justify-center items-align text-lg text-semibold" htmlFor="category">
             Category
           </label>
 
@@ -38,11 +38,11 @@ const MatchForm = ({ onSubmit }) => {
                 id="categories"
                 defaultValue=""
                 onChange={handleCategoryChange}
-                className="form-select"
+                className="block mx-auto py-3 px-4 text-center w-[300px] rounded-lg border-1 border-black bg-white text-black focus:outline-none"
                 // required
               >
                 <option value="" disabled>
-                  Select categories
+                  Please select a topic
                 </option>
                 {/* Use categories from config file */}
                 {categories.map((cat) => (
@@ -71,12 +71,12 @@ const MatchForm = ({ onSubmit }) => {
         </div>
 
         <div className="col">
-          <label className="gray-label" htmlFor="difficulty">
+          <label className="gray-label flex justify-center items-align" htmlFor="difficulty">
             Difficulty
           </label>
           <select
             type="text"
-            className="form-select"
+            className="block mx-auto py-3 px-4 text-center w-[300px] rounded-lg border-1 border-black bg-white text-black focus:outline-none focus:ring-2 focus:ring-indigo-500"
             id="difficulty"
             name="difficulty"
             value={difficulty}
@@ -85,7 +85,7 @@ const MatchForm = ({ onSubmit }) => {
             required
           >
             <option value="" disabled selected>
-              Select Difficulty
+              Please select a difficulty
             </option>
             <option value="Easy">Easy</option>
             <option value="Medium">Medium</option>
@@ -93,10 +93,16 @@ const MatchForm = ({ onSubmit }) => {
           </select>
         </div>
       </div>
-      <br />
+
+      <div className="">
+        <p className="text-xl text-[] text-center">
+          Ready to find your perfect match? Click the button to start now!
+        </p>
+      </div>
+
       <div className="flex items-center justify-center">
         <button type="submit" className="btn justify-center align-middle">
-          Find Match
+          Match Now!
         </button>
       </div>
     </form>
