@@ -14,4 +14,21 @@ const pushReq = async (req, res) => {
     res.status(200).send({ status: 'Request received. Waiting for match.', userId });
 };
 
-module.exports = pushReq;
+const cancelReq = async (req, res) => {
+    const { userId } = req.body;
+    console.log(`Received cancel request from user ${userId}`);
+
+    try {
+        // Send a cancel message to RabbitMQ
+        sendToQueue({ userId, action: 'cancel' });
+
+        // Send response to the frontend
+        res.status(200).send({ status: 'Match request canceled successfully.', userId });
+    } catch (error) {
+        console.error("Failed to cancel match request:", error);
+        res.status(500).send({ status: 'Failed to cancel match request.', error: error.message });
+    }
+};
+
+// Export both functions
+module.exports = { pushReq, cancelReq };

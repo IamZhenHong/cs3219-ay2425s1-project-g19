@@ -18,19 +18,17 @@ const MatchingPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If userEmail exists, save it to localStorage for persistence across refreshes
     if (userEmail) {
       localStorage.setItem("userEmail", userEmail);
     }
   }, [userEmail]);
 
   useEffect(() => {
-    // Check if userEmail is available from UserContext or localStorage
     const storedEmail = userEmail || localStorage.getItem("userEmail");
 
     if (storedEmail) {
       setIsLoading(true);
-      setStatus(""); // Clear any previous status
+      setStatus(""); 
 
       async function fetchUser() {
         try {
@@ -44,7 +42,7 @@ const MatchingPage = () => {
           console.error("Failed to fetch user data:", error);
           setStatus("Error loading user data. Please try again later.");
         } finally {
-          setIsLoading(false); // Ensure loading stops even in case of an error
+          setIsLoading(false);
         }
       }
 
@@ -66,17 +64,16 @@ const MatchingPage = () => {
       setCountdown(timeout);
       setIsMatching(true);
 
-      // Helper function to close WebSocket connection and wait until it's fully closed
       const closeWebSocket = () => {
         return new Promise((resolve) => {
           if (ws) {
             ws.onclose = () => {
               console.log("Previous WebSocket closed.");
-              resolve(); // Resolve the promise once WebSocket is closed
+              resolve();
             };
-            ws.close(); // Initiate WebSocket close
+            ws.close();
           } else {
-            resolve(); // If no WebSocket, resolve immediately
+            resolve();
           }
         });
       };
@@ -89,9 +86,7 @@ const MatchingPage = () => {
         };
 
         const res = await getMatch(data);
-
-        // Close any existing WebSocket connection before creating a new one
-        await closeWebSocket(); // Wait for WebSocket to close
+        await closeWebSocket();
 
         const websocket = new WebSocket("ws://localhost:8002");
         websocket.onopen = () => {
@@ -104,12 +99,15 @@ const MatchingPage = () => {
             setStatus(
               `Match found! You are paired with user ${result.matchedUserId}`
             );
-            // Navigate to collaboration room
             navigate(`/room/${result.roomId}`);
+            setIsMatching(false);
           } else if (result.status === "timeout") {
             setStatus("No match found. Please try again.");
+            setIsMatching(false);
+          } else if (result.status === "CANCELLED") {
+            setStatus("Matching process was cancelled.");
+            setIsMatching(false);
           }
-          setIsMatching(false);
         };
 
         websocket.onerror = (error) => {
@@ -127,8 +125,19 @@ const MatchingPage = () => {
         setIsMatching(false);
       }
     },
-    [currentUserInfo, ws]
+    [currentUserInfo, ws, navigate]
   );
+
+  const handleCancelRequest = () => {
+    if (ws) {
+      ws.send(JSON.stringify({ userId: currentUserInfo.id, action: "cancel" }));
+      setStatus("Cancelled match request...");
+      ws.close();
+      setWs(null);
+    }
+    setIsMatching(false);
+    setCountdown(timeout); // Reset countdown
+  };
 
   useEffect(() => {
     let intervalId;
@@ -171,6 +180,11 @@ const MatchingPage = () => {
         <p>{status}</p>
         {isMatching && <p>Time remaining: {countdown} seconds</p>}
       </div>
+      {isMatching && (
+        <button onClick={handleCancelRequest} className="cancel-button">
+          Cancel Matching
+        </button>
+      )}
     </div>
   );
 };
