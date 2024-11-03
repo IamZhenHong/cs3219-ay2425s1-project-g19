@@ -38,60 +38,51 @@ const setupConsumer = () => {
         const userRequest = JSON.parse(msg.content.toString());
         console.log('Received user request:', userRequest);
 
-        if (userRequest.action === 'cancel') {
-          // Handle cancel request
-          unmatchedUsers = unmatchedUsers.filter(u => u.userId !== userRequest.userId);
-          sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
-          console.log(`Cancelled matching request for user ${userRequest.userId}`);
-        } else {
-          // Handle match request
-          const match = unmatchedUsers.find(u => 
-            checkSubset(u.category, userRequest.category) || 
-            checkSubset(userRequest.category, u.category)
-          ) || unmatchedUsers.find(u => u.difficulty === userRequest.difficulty);
+        // Check if there's a matching user in unmatchedUsers
+        const match = unmatchedUsers.find(u => checkSubset(u.category, userRequest.category) || checkSubset(userRequest.category, u.category)) || unmatchedUsers.find(u => u.difficulty === userRequest.difficulty);
 
-          if (match) {
-            try {
-              console.log(`Matched user ${userRequest.userId} with user ${match.userId}`);
+        if (match) {
+          try {
+            console.log(`Matched user ${userRequest.userId} with user ${match.userId}`);
 
-              // Create room in collaboration service
-              const response = await axios.post(`${COLLAB_SERVICE_URL}/rooms/create`, {
-                users: [userRequest.userId, match.userId],
+            // Create room in collaboration service
+            const response = await axios.post(`${COLLAB_SERVICE_URL}/rooms/create`, {
+              users: [userRequest.userId, match.userId],
+              difficulty: userRequest.difficulty,
+              category: userRequest.category
+            });
+
+            const { roomId } = response.data;
+
+            // Notify both users
+            [userRequest, match].forEach(user => {
+              sendWsMessage(user.userId, {
+                status: 'MATCH_FOUND',
+                roomId,
+                matchedUserId: user === userRequest ? match.userId : userRequest.userId,
                 difficulty: userRequest.difficulty,
                 category: userRequest.category
               });
+            });
 
-              const { roomId } = response.data;
+            // Clear the timeouts for both users
+            clearTimeout(match.timeoutId);
 
-              // Notify both users
-              [userRequest, match].forEach(user => {
-                sendWsMessage(user.userId, {
-                  status: 'MATCH_FOUND',
-                  roomId,
-                  matchedUserId: user === userRequest ? match.userId : userRequest.userId,
-                  difficulty: userRequest.difficulty,
-                  category: userRequest.category
-                });
-              });
-
-              // Clear the timeouts for both users
-              clearTimeout(match.timeoutId);
-
-              // Remove matched user from unmatchedUsers
-              unmatchedUsers = unmatchedUsers.filter(u => u.userId !== match.userId);
-            } catch (error) {
-              console.error('Error creating room:', error);
-            }
-          } else {
-            // Set a timeout to remove unmatched users after 30 seconds
-            const timeoutId = setTimeout(() => {
-              unmatchedUsers = unmatchedUsers.filter(u => u.userId !== userRequest.userId);
-              sendWsMessage(userRequest.userId, { status: 'timeout' });
-            }, 30000);  // 30 seconds timeout
-
-            // Add the new user with their timeout ID
-            unmatchedUsers.push({ ...userRequest, timeoutId });
+            // Remove matched user from unmatchedUsers
+            unmatchedUsers = unmatchedUsers.filter(u => u.userId !== match.userId);
+          } catch (error) {
+            console.error('Error creating room:', error);
+            // Handle error appropriately
           }
+        } else {
+          // Set a timeout to remove unmatched users after 30 seconds
+          const timeoutId = setTimeout(() => {
+            unmatchedUsers = unmatchedUsers.filter(u => u.userId !== userRequest.userId);
+            sendWsMessage(userRequest.userId, { status: 'timeout' });
+          }, 30000);  // 30 seconds timeout
+
+          // Add the new user with their timeout ID
+          unmatchedUsers.push({ ...userRequest, timeoutId });
         }
 
         ch.ack(msg);  // Acknowledge message processing
@@ -99,6 +90,5 @@ const setupConsumer = () => {
     });
   });
 };
-
 
 module.exports = { setupConsumer };
