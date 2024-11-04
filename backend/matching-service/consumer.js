@@ -40,9 +40,18 @@ const setupConsumer = () => {
 
         if (userRequest.action === 'cancel') {
           // Handle cancel request
-          unmatchedUsers = unmatchedUsers.filter(u => u.userId !== userRequest.userId);
-          sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
-          console.log(`Cancelled matching request for user ${userRequest.userId}`);
+          const userIndex = unmatchedUsers.findIndex(u => u.userId === userRequest.userId);
+          if (userIndex !== -1) {
+              console.log(`Cancelling request for user ${userRequest.userId}`);
+              clearTimeout(unmatchedUsers[userIndex].timeoutId); // Clear any pending timeout
+              unmatchedUsers.splice(userIndex, 1); // Remove user from unmatched list
+              sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
+              console.log(`Cancelled matching request for user ${userRequest.userId}`);
+          } else {
+              console.log(`No unmatched request found for user ${userRequest.userId}`);
+          }
+    sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
+    console.log(`Cancelled matching request for user ${userRequest.userId}`);
         } else {
           // Handle match request
           const match = unmatchedUsers.find(u => 
