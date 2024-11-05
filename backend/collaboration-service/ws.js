@@ -41,7 +41,6 @@ function handleMessage(ws, data) {
       break;
 
     case "SEND_MESSAGE":
-      console.log(data);
       handleSendMessage(ws, data);
       break;
 
@@ -68,14 +67,12 @@ function handleMessage(ws, data) {
 
 function handleConnect(ws, data) {
   wsClients.set(data.userId, ws);
-  console.log(wsClients);
   ws.userId = data.userId;
 }
 
 // Function to handle room creation
 function handleCreateRoom(ws, data) {
   const { roomId, users, difficulty, category } = data;
-
   // // Check if room already exists
   // const room = roomManager.getRoom(roomId);
   // if (room) {
@@ -89,9 +86,9 @@ function handleCreateRoom(ws, data) {
   //   wsClients.set(user, ws);
   //   ws.userId = data.users.use;
   // }
-  wsClients.set(data.users[0], ws);
-  ws.userId = data.users[0];
-  console.log(data.users);
+  // wsClients.set(data.users[0], ws);
+  // ws.userId = data.users[0];
+  // console.log(data.users);
 
   // Create and store a new room on the server
   const newRoom = roomManager.createRoom(roomId, users, difficulty, category);
@@ -107,10 +104,8 @@ function handleCreateRoom(ws, data) {
 }
 
 function handleSendMessage(ws, data) {
-  console.log(data);
   const { roomId, userId, message } = data;
   const room = roomManager.getRoom(roomId);
-
   if (room) {
     broadcastToRoom(
       roomId,
@@ -131,8 +126,8 @@ function handleJoinRoom(ws, data) {
   const room = roomManager.getRoom(roomId);
 
   if (room) {
-    room.addUser(userId);
     ws.roomId = roomId;
+    wsClients.set(userId, ws);
 
     // Send current room state
     ws.send(
@@ -256,9 +251,13 @@ function broadcastToRoom(roomId, message, excludeUserId = null) {
         const ws = wsClients.get(userId);
         if (ws) {
           ws.send(JSON.stringify(message));
+        } else {
+          console.error(`No WebSocket connection found for user ${userId}`);
         }
       }
     });
+  } else {
+    console.error(`Room ${roomId} not found`);
   }
 }
 

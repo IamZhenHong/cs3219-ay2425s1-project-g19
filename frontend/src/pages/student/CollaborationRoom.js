@@ -93,9 +93,7 @@ const CollaborationRoom = () => {
 
   const sendMessage = (event) => {
     event.preventDefault();
-    console.log(ws, message);
     if (ws && message) {
-      console.log(roomId, userId, message);
       ws.send(
         JSON.stringify({
           type: "SEND_MESSAGE",
@@ -104,7 +102,6 @@ const CollaborationRoom = () => {
           message,
         })
       );
-      console.log("Hello");
       setMessage(""); // Clear the input message
     }
   };
