@@ -70,15 +70,15 @@ function handleConnect(ws, data) {
 function handleCreateRoom(ws, data) {
   const { roomId, users, difficulty, category } = data;
   
-  // Check if room already exists
-  const room = roomManager.getRoom(roomId);
-  if (room) {
-    ws.send(JSON.stringify({
-      type: 'CREATE_FAILURE',
-      message: `Room ${roomId} already exists`
-    }));
-    return;
-  }
+  // // Check if room already exists
+  // const room = roomManager.getRoom(roomId);
+  // if (room) {
+  //   ws.send(JSON.stringify({
+  //     type: 'CREATE_FAILURE',
+  //     message: `Room ${roomId} already exists`
+  //   }));
+  //   return;
+  // }
 
   // Create and store a new room on the server
   const newRoom = roomManager.createRoom(roomId, users, difficulty, category);
