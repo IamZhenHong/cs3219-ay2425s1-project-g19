@@ -102,7 +102,7 @@ const CollaborationRoom = () => {
           message,
         })
       );
-      setMessage(""); // Clear the input message
+      setMessage(""); // Clear the message input
     }
   };
 
@@ -116,7 +116,7 @@ const CollaborationRoom = () => {
       <div className="chatContainer">
         <div className="container">
           <input
-            val={message}
+            value={message}
             onChange={(event) => setMessage(event.target.value)}
             onKeyDown={(event) => {
               event.key === "Enter" && sendMessage(event);
