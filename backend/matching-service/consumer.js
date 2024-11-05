@@ -51,7 +51,7 @@ const setupConsumer = () => {
               difficulty: userRequest.difficulty,
               category: userRequest.category
             });
-
+            console.log(response.data);
             const { roomId } = response.data;
 
             // Notify both users

@@ -105,7 +105,13 @@ const MatchingPage = () => {
               `Match found! You are paired with user ${result.matchedUserId}`
             );
             // Navigate to collaboration room
-            navigate(`/room/${result.roomId}`);
+            navigate(`/room/${result.roomId}`, {
+              state: {
+                difficulty: submission.difficulty,
+                category: submission.category,
+                matchedUserId: result.matchedUserId
+              }
+            });
           } else if (result.status === "timeout") {
             setStatus("No match found. Please try again.");
           }
