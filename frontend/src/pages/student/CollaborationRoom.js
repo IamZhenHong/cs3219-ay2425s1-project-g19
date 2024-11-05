@@ -74,7 +74,7 @@ const CollaborationRoom = () => {
       clearInterval(pingInterval); // Clear the ping interval on unmount
       // websocket.close();
     };
-  }, [roomId, userId]); // Run this effect when the roomId or userId changes.
+  }, []); // Run this effect when the roomId or userId changes.
 
   return (
     <div>
