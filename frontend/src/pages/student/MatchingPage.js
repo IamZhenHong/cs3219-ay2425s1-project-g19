@@ -169,7 +169,7 @@ const MatchingPage = () => {
         <p>{status}</p>
         {isMatching && <p>Time remaining: {countdown} seconds</p>}
       </div>
-      <div className="flex justify-center items-center pt-8">
+      <div className="flex justify-center items-center pt-4">
         <img src={matchingPicture} className="w-[860px] h-[460px]"alt="icon"/>
       </div>
     </div>

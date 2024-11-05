@@ -94,11 +94,9 @@ const MatchForm = ({ onSubmit }) => {
         </div>
       </div>
 
-      <div className="">
-        <p className="text-xl text-[] text-center">
-          Ready to find your perfect match? Click the button to start now!
-        </p>
-      </div>
+      <p className="text-xl text-[] text-center">
+        Ready to find your perfect match? Click the button to start now!
+      </p>
 
       <div className="flex items-center justify-center">
         <button type="submit" className="btn justify-center align-middle">
