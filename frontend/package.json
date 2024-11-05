@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^6.1.4",
     "@mui/material": "^6.1.4",
     "@nivo/core": "^0.87.0",
@@ -15,14 +16,19 @@
     "axios": "^1.7.7",
     "formik": "^2.4.6",
     "moment-timezone": "^0.5.45",
+    "monaco-editor": "^0.52.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
     "react-scripts": "^5.0.1",
     "react-transition-group": "^4.4.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "y-monaco": "^0.1.6",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.20"
   },
   "scripts": {
+    "start-alt-port-windows": "set PORT=3006 && react-scripts start",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
