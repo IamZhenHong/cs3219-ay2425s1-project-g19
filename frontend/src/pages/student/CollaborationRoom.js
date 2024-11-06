@@ -199,47 +199,54 @@ const CollaborationRoom = () => {
     <div>
       <h1>Collaboration Room: {roomId}</h1>
       <p>Status: {status}</p>
+      <div className="flex">
+        <div className="questionContainer flex-1">Questions</div>
+        <div className="flex-1 flex flex-col">
+          <div className="toolbar">
+            <label>Select Language: </label>
+            <select
+              value={language}
+              onChange={(e) => {
+                setLanguage(e.target.value);
+                onLanguageChange(e.target.value); // Call the language change function
+              }}
+            >
+              {languages.map((lang) => (
+                <option key={lang.value} value={lang.value}>
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div className="chatContainer">
-        <div className="container">
-          <input
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => {
-              event.key === "Enter" && sendMessage(event);
+          <div
+            style={{
+              height: "80vh",
+              border: "1px solid #ddd",
+              marginTop: "10px",
             }}
-          ></input>
+          >
+            <Editor
+              height="100%"
+              language={language}
+              value={code}
+              // onMount={handleEditorDidMount}
+              onChange={onCodeChange}
+              theme="vs-dark"
+            />
+          </div>
         </div>
-      </div>
-
-      <div className="toolbar">
-        <label>Select Language: </label>
-        <select
-          value={language}
-          onChange={(e) => {
-            setLanguage(e.target.value);
-            onLanguageChange(e.target.value); // Call the language change function
-          }}
-        >
-          {languages.map((lang) => (
-            <option key={lang.value} value={lang.value}>
-              {lang.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div
-        style={{ height: "80vh", border: "1px solid #ddd", marginTop: "10px" }}
-      >
-        <Editor
-          height="100%"
-          language={language}
-          value={code}
-          // onMount={handleEditorDidMount}
-          onChange={onCodeChange}
-          theme="vs-dark"
-        />
+        <div className="chatContainer flex-1">
+          <div className="container">
+            <input
+              value={message}
+              onChange={(event) => setMessage(event.target.value)}
+              onKeyDown={(event) => {
+                event.key === "Enter" && sendMessage(event);
+              }}
+            ></input>
+          </div>
+        </div>
       </div>
     </div>
   );
