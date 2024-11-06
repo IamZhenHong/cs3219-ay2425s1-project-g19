@@ -236,15 +236,17 @@ const CollaborationRoom = () => {
             />
           </div>
         </div>
-        <div className="chatContainer flex-1">
-          <div className="container">
-            <input
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              onKeyDown={(event) => {
-                event.key === "Enter" && sendMessage(event);
-              }}
-            ></input>
+        <div className="chatMainContainer flex-1">
+          <div className="chatContainer flex justify-center items-center h-screen bg-[#1A1A1D] sm:h-full ">
+            <div className="container flex-1 flex-col justify-between bg-white h-[60%] w-[35%] sm:w-full sm:h-full md:w-[60%]">
+              <input
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                onKeyDown={(event) => {
+                  event.key === "Enter" && sendMessage(event);
+                }}
+              ></input>
+            </div>
           </div>
         </div>
       </div>
