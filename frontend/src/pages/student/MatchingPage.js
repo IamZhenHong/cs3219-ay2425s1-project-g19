@@ -6,6 +6,7 @@ import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import matchingPicture from "../../assets/matching-picture.png";
 import Loader from "../../components/utils/Loader";
+import Modal from "../../components/student/Modal";
 
 const timeout = 30; // Timeout value in seconds
 
@@ -16,6 +17,7 @@ const MatchingPage = () => {
   const [isMatching, setIsMatching] = useState(false);
   const [currentUserInfo, setCurrentUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { userEmail } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -65,6 +67,7 @@ const MatchingPage = () => {
       setStatus("Finding a match...");
       setCountdown(timeout);
       setIsMatching(true);
+      setIsModalOpen(true);
 
       const closeWebSocket = () => {
         return new Promise((resolve) => {
@@ -139,6 +142,7 @@ const MatchingPage = () => {
     }
     setIsMatching(false);
     setCountdown(timeout); // Reset countdown
+    setIsModalOpen(false); // Close the modal
   };
 
   useEffect(() => {
@@ -175,17 +179,28 @@ const MatchingPage = () => {
   }
 
   return (
-    <div className="Matching flex flex-col w-full h-full bg-white px-4">
+    <div className="Matching flex flex-col w-full h-full bg-[#000000]">
       <MatchForm onSubmit={handleMatchRequest} />
-      <div className="flex flex-col items-center justify-center py-2">
-        {isMatching && <Loader/>}
-        <p>{status}</p>
-        {isMatching && <p>Time remaining: {countdown} seconds</p>}
-      </div>
       {isMatching && (
-        <button onClick={handleCancelRequest} className="cancel-button">
-          Cancel Matching
-        </button>
+        <Modal open={isModalOpen} onClose={handleCancelRequest}>
+          <div className="flex flex-col items-center justify-center my-20">
+            {isMatching && <Loader/>}
+            
+            <p className="text-lg font-regular m-2">
+              {status}
+            </p>
+            
+            {isMatching && 
+              <p className="text-lg font-regular mb-2">
+                Time remaining: {countdown} seconds
+              </p>
+            }
+            
+            <button onClick={handleCancelRequest} className="btn btn-danger">
+              Cancel Matching
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );
