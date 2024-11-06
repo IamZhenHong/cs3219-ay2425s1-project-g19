@@ -25,6 +25,22 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
+  // Adding sessionHistory field as an array of objects
+  sessionHistory: {
+    type: [
+      {
+        sessionId: String,
+        matchedUserId: String,
+        questionId: String,
+        startTime: {
+          type: Date,
+          default: Date.now, // Set start time to the current date/time by default
+        },
+        endTime: Date, // End time can be set when the session ends
+      },
+    ],
+    default: [], // Initialize as an empty array
+  },
 });
 
 module.exports = mongoose.model("UserModel", UserModelSchema);
