@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const CLOUDAMQP_URL = process.env.CLOUDAMQP_URL;
-const LOCAL_RABBITMQ_URL = process.env.LOCAL_RABBITMQ_URL || "amqp://rabbitmq:5672";
+const LOCAL_RABBITMQ_URL = process.env.LOCAL_RABBITMQ_URL || "amqp://localhost:5672";
 
 let channel;
 
