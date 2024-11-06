@@ -5,6 +5,9 @@
   color: white;
   display: inline-block;
   max-width: 80%;
+  word-wrap: break-word; /* Ensure text wraps within the box */
+  overflow-wrap: break-word; /* Break long words if necessary */
+  white-space: pre-wrap; /* Preserve whitespace and wrap lines as needed */
 }
 
 .messageText {
@@ -22,8 +25,11 @@
 .messageContainer {
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
   padding: 0 5%;
   margin-top: 3px;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .sentText {
