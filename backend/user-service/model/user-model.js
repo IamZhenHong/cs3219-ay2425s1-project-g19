@@ -29,14 +29,22 @@ const UserModelSchema = new Schema({
   sessionHistory: {
     type: [
       {
-        sessionId: String,
-        matchedUserId: String,
-        questionId: String,
-        startTime: {
+        sessionId: {
+          type: String,
+          required: true,
+        },
+        matchedUserId: {
+          type: String,
+          required: true,
+        },
+        questionId: {
+          type: String,
+          required: true,
+        },
+        startDate: {
           type: Date,
           default: Date.now, // Set start time to the current date/time by default
         },
-        endTime: Date, // End time can be set when the session ends
       },
     ],
     default: [], // Initialize as an empty array

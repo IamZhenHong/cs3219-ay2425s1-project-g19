@@ -78,21 +78,10 @@ const addNewSession = async (userId, sessionData) => {
     userId,
     {
       $push: {
-        sessionHistory: sessionData, // sessionData should contain sessionId, matchedUserId, questionId, startTime, endTime
+        sessionHistory: sessionData, // sessionData should contain sessionId, matchedUserId, questionId, startDate
       },
     },
     { new: true }
-  );
-};
-
-const updateSessionEndTime = async (userId, sessionId, endTime) => {
-  await UserModel.updateOne(
-    { _id: userId, "sessionHistory.sessionId": sessionId },
-    {
-      $set: {
-        "sessionHistory.$.endTime": endTime,
-      },
-    }
   );
 };
 
@@ -135,6 +124,5 @@ module.exports = {
   updateUserPrivilegeById,
   deleteUserById,
   addNewSession,
-  updateSessionEndTime,
   deleteSession,
 };
