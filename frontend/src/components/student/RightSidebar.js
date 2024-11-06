@@ -4,7 +4,7 @@ import PieChart from "./PieChart";
 
 function RightSidebar() {
   return (
-    <div className="w-[20rem] mt-[6rem] h-[calc(100%-5rem)] fixed right-0 top-0 ">
+    <div className="w-[20rem] mt-[6rem] h-[calc(100%-5rem)] absolute right-0 top-0">
       {/* Profile section */}
       <div className="m-6">
         <div

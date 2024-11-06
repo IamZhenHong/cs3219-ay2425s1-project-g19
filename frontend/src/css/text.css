@@ -1,0 +1,5 @@
+.scrollMessage {
+  height: 100%;
+  max-height: 67vh;
+  overflow-y: auto;
+}

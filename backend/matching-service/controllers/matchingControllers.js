@@ -14,4 +14,19 @@ const pushReq = async (req, res) => {
     res.status(200).send({ status: 'Request received. Waiting for match.', userId });
 };
 
-module.exports = pushReq;
+const cancelMatch = async (req, res) => {
+    const { status, userId } = req.body; // Extract matchId from request body
+    
+
+    sendToQueue({ status, userId });
+
+    res.status(200).send({ status: 'Request received. Cancelling match.' });
+  };
+  
+  // Export your functions
+module.exports = {
+pushReq,
+cancelMatch, // Export the cancelMatch function
+};
+
+// module.exports = pushReq;
