@@ -189,7 +189,7 @@ const MatchingPage = () => {
   return (
     <div className="Matching flex flex-col w-full h-full bg-[#000000]">
       <MatchForm onSubmit={handleMatchRequest} />
-      {isMatching && (
+      {isModalOpen && (
         <Modal open={isModalOpen} onClose={handleCancelRequest}>
           <div className="flex flex-col items-center justify-center my-20">
             {isMatching && <Loader/>}
@@ -205,7 +205,7 @@ const MatchingPage = () => {
             }
             
             <button onClick={handleCancelRequest} className="btn btn-danger">
-              Cancel Matching
+              {isMatching ? "Cancel Matching" : "Exit"}
             </button>
           </div>
         </Modal>
