@@ -69,9 +69,9 @@ const setupConsumer = () => {
                 difficulty: userRequest.difficulty,
                 category: userRequest.category
               });
-
+              console.log(response.data);
               const { roomId } = response.data;
-
+  
               // Notify both users
               [userRequest, match].forEach(user => {
                 sendWsMessage(user.userId, {
@@ -82,10 +82,10 @@ const setupConsumer = () => {
                   category: userRequest.category
                 });
               });
-
+  
               // Clear the timeouts for both users
               clearTimeout(match.timeoutId);
-
+  
               // Remove matched user from unmatchedUsers
               unmatchedUsers = unmatchedUsers.filter(u => u.userId !== match.userId);
             } catch (error) {
