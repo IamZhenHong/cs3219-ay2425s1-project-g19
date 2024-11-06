@@ -8,7 +8,7 @@ const PieChart = () => {
     {
       id: "Solved",
       label: "Solved",
-      value: 10,
+      value: 7,
       color: "hsl(32, 70%, 50%)",
     },
     {

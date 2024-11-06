@@ -104,8 +104,9 @@ const MatchingPage = () => {
               state: {
                 difficulty: submission.difficulty,
                 category: submission.category,
-                matchedUserId: result.matchedUserId
-              }
+                userId: currentUserInfo.id,
+                matchedUserId: result.matchedUserId,
+              },
             });
             setIsMatching(false);
           } else if (result.status === "timeout") {
