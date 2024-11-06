@@ -1,5 +1,5 @@
-/* .messages {
+.scrollMessage {
   height: 100%;
-  max-height: 60vh;
-  overflow-y: auto; 
-} */
+  max-height: 67vh;
+  overflow-y: auto;
+}
