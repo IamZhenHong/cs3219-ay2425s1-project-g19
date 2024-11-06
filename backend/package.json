@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "concurrently \"npm start --prefix ./user-service\" \"npm start --prefix ./questions_service\" \"npm start --prefix ./matching_service\" \"npm start --prefix ./collaboration_service\""
+    "start": "concurrently \"npm start --prefix ./user-service\" \"npm start --prefix ./questions_service\" \"npm start --prefix ./matching-service\" \"npm start --prefix ./collaboration-service\""
   },
   "devDependencies": {
     "concurrently": "^9.0.1"
