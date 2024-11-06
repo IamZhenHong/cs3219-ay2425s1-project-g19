@@ -4,7 +4,7 @@ class Room {
     this.users = users;
     this.difficulty = difficulty;
     this.category = category;
-    this.connectedUsers = new Set();
+    this.connectedUsers = new Set(users);
     this.code = '';
     this.createdAt = Date.now();
   }

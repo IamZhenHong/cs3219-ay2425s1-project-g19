@@ -33,9 +33,9 @@ const setupWebSocket = (server) => {
 
 function handleMessage(ws, data) {
   switch (data.type) {
-    case 'CONNECT':
-      handleConnect(ws, data);
-      break;
+    // case 'CONNECT':
+    //   handleConnect(ws, data);
+    //   break;
 
     case 'CREATE_ROOM':  // Add this case to handle room creation
       handleCreateRoom(ws, data);
@@ -66,10 +66,11 @@ function handleMessage(ws, data) {
   }
 }
 
-function handleConnect(ws, data) {
-  wsClients.set(data.userId, ws);
-  ws.userId = data.userId;
-}
+// function handleConnect(ws, data) {
+//   console.log('handleConnect:', data);
+//   wsClients.set(data.userId, ws);
+//   ws.userId = data.userId;
+// }
 
 // Function to handle room creation
 function handleCreateRoom(ws, data) {
@@ -84,6 +85,9 @@ function handleCreateRoom(ws, data) {
   //   }));
   //   return;
   // }
+
+  wsClients.set(users[0], ws);
+  ws.userId = users[0];
 
   // Create and store a new room on the server
   const newRoom = roomManager.createRoom(roomId, users, difficulty, category);
