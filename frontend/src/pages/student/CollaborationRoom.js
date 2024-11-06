@@ -23,6 +23,13 @@ const CollaborationRoom = () => {
   const [code, setCode] = useState("// Start coding...");
   const [language, setLanguage] = useState("javascript");
 
+  const monacoRef = useRef(null); // Store reference to Monaco instance
+  const editorRef = useRef(null); // Store reference to Monaco Editor instance
+
+  // Store the cursor positions of other users
+  const [userCursors, setUserCursors] = useState({});
+
+
   // Create a WebSocket connection when the component mounts.
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8003");
@@ -56,11 +63,12 @@ const CollaborationRoom = () => {
           })
         );
       } else if (result.type === "CODE_UPDATE") {
-        console.log("receive ${result.code}")
         setCode(result.code); 
       } else if (result.type === "CREATE_FAILURE") {
         setStatus(`Failed to create room: ${result.message}`);
-      } 
+      } else if (result.type === "LANGUAGE_CHANGE") {
+        setLanguage(result.language);
+      }
     };
 
     websocket.onerror = (error) => {
@@ -95,6 +103,59 @@ const CollaborationRoom = () => {
     }
   };
 
+ // Handle cursor position updates and send them to the WebSocket server
+ const onLanguageChange = (language) => {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
+      type: "LANGUAGE_CHANGE",
+      roomId: roomId,
+      language: language,
+      userId: userId
+    }));
+  }
+};
+
+// // Save reference to Monaco editor and set up cursor position listener
+// const handleEditorDidMount = (editor, monaco) => {
+//   editorRef.current = editor;
+//   monacoRef.current = monaco; // Save monaco instance for later use
+
+//   // Listen for cursor position changes
+//   editor.onDidChangeCursorPosition((event) => {
+//     const position = editor.getPosition(); // { lineNumber, column }
+//     onCursorChange(position); // Send the new cursor position to the WebSocket server
+//   });
+// };
+
+// // Display the other users' cursor positions
+// const renderUserCursors = () => {
+//   const editor = editorRef.current;
+//   const monaco = monacoRef.current;
+//   if (!editor || !monaco) return null;
+
+//   Object.keys(userCursors).forEach((userId) => {
+//     const cursorPosition = userCursors[userId];
+//     if (cursorPosition) {
+//       const { lineNumber, column } = cursorPosition;
+
+//       // Add a decoration for other users' cursor positions
+//       editor.deltaDecorations([], [{
+//         range: new monaco.Range(lineNumber, column, lineNumber, column),
+//         options: {
+//           className: 'other-user-cursor',
+//           isWholeLine: false
+//         }
+//       }]);
+//     }
+//   });
+// };
+
+// useEffect(() => {
+//   if (editorRef.current) {
+//     renderUserCursors();
+//   }
+// }, [userCursors]);
+
   return (
     <div>
       <h1>Collaboration Room: {roomId}</h1>
@@ -102,7 +163,12 @@ const CollaborationRoom = () => {
 
       <div className="toolbar">
         <label>Select Language: </label>
-        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+        <select 
+          value={language} 
+          onChange={(e) => {
+            setLanguage(e.target.value);
+            onLanguageChange(e.target.value); // Call the language change function
+          }}>
           {languages.map((lang) => (
             <option key={lang.value} value={lang.value}>
               {lang.label}
@@ -116,6 +182,7 @@ const CollaborationRoom = () => {
           height="100%"
           language={language}
           value={code}
+          // onMount={handleEditorDidMount}
           onChange={onCodeChange}
           theme="vs-dark"
         />

@@ -49,6 +49,10 @@ function handleMessage(ws, data) {
       handleCodeChange(data);
       break;
 
+    case 'LANGUAGE_CHANGE':
+      handleLanguageChange(data);
+      break;
+
     case 'CURSOR_MOVE':
       handleCursorMove(data);
       break;
@@ -155,6 +159,22 @@ function handleCursorMove(data) {
     position,
     userId
   }, userId);
+}
+
+function handleLanguageChange(data) {
+  const { roomId, language, userId } = data;
+  const room = roomManager.getRoom(roomId);
+
+  if (room) {
+    console.log(`Language changed for room ${roomId}: ${language}`);
+    broadcastToRoom(roomId, {
+      type: 'LANGUAGE_CHANGE',
+      language,
+      userId
+    }, userId);
+  } else {
+    console.error(`Room ${roomId} not found for user ${userId}`);
+  }
 }
 
 function handleLeaveRoom(ws, data) {
