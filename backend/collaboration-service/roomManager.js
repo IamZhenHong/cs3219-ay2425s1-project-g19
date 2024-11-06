@@ -10,7 +10,12 @@ class Room {
   }
 
   addUser(userId) {
-    this.connectedUsers.add(userId);
+    console.log("Adding user to room");
+    console.log(`Adding user ${userId} to room ${this.id}`);
+    if (!this.connectedUsers.has(userId)) {
+      this.connectedUsers.add(userId);
+      console.log(Array.from(this.connectedUsers));
+    }
   }
 
   removeUser(userId) {
@@ -33,7 +38,7 @@ class Room {
       category: this.category,
       connectedUsers: Array.from(this.connectedUsers),
       code: this.code,
-      createdAt: this.createdAt
+      createdAt: this.createdAt,
     };
   }
 }
@@ -64,5 +69,5 @@ class RoomManager {
 
 module.exports = {
   Room,
-  RoomManager
+  RoomManager,
 };

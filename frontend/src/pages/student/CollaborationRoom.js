@@ -13,6 +13,12 @@ const languages = [
 const CollaborationRoom = () => {
   const [status, setStatus] = useState("Connecting...");
   const { roomId } = useParams();
+  // const [userId, setUserId] = useState(
+  //   `user-${Math.random().toString(36).substr(2, 9)}`
+  // ); // Create a unique user ID.
+  const [ws, setWs] = useState(null); // Manage the WebSocket connection here.
+  const [message, setMessage] = useState(""); // Track the input message
+  const [messages, setMessages] = useState([]); // Store all chat messages
   const location = useLocation();
   const { difficulty, category, userId, matchedUserId } = location.state || {};
 
@@ -34,6 +40,8 @@ const CollaborationRoom = () => {
   useEffect(() => {
     const websocket = new WebSocket("ws://localhost:8003");
 
+    let pingInterval;
+
     websocket.onopen = () => {
       console.log("WebSocket connected.");
       setStatus("Connected to the server.");
@@ -53,7 +61,15 @@ const CollaborationRoom = () => {
     websocket.onmessage = (message) => {
       console.log("Received message:", message.data);
       const result = JSON.parse(message.data);
-      if (result.type === "CREATE_SUCCESS") {
+      
+      if (result.type === "MESSAGE") {
+        // Add the message to the chat
+        setMessages((prev) => [
+          ...prev,
+          { userId: result.userId, message: result.message },
+        ]);
+        console.log(userId);
+      } else if (result.type === "CREATE_SUCCESS") {
         // Room created successfully, now join the room
         websocket.send(
           JSON.stringify({
@@ -77,8 +93,13 @@ const CollaborationRoom = () => {
     };
 
     websocket.onclose = (event) => {
-      setStatus(`WebSocket closed: Code = ${event.code}, Reason = ${event.reason}`);
-      console.log(`WebSocket closed: Code = ${event.code}, Reason = ${event.reason}`);
+      clearInterval(pingInterval); // Clear the ping interval
+      setStatus(
+        `WebSocket closed: Code = ${event.code}, Reason = ${event.reason}`
+      );
+      console.log(
+        `WebSocket closed: Code = ${event.code}, Reason = ${event.reason}`
+      );
     };
 
     setWs(websocket); // Store the WebSocket connection.
@@ -156,10 +177,40 @@ const CollaborationRoom = () => {
 //   }
 // }, [userCursors]);
 
+  const sendMessage = (event) => {
+    event.preventDefault();
+    if (ws && message) {
+      ws.send(
+        JSON.stringify({
+          type: "SEND_MESSAGE",
+          roomId,
+          userId,
+          message,
+        })
+      );
+      setMessage(""); // Clear the message input
+    }
+  };
+
+  console.log("Message:", message);
+  console.log("Messages:", messages);
+
   return (
     <div>
       <h1>Collaboration Room: {roomId}</h1>
       <p>Status: {status}</p>
+
+      <div className="chatContainer">
+        <div className="container">
+          <input
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={(event) => {
+              event.key === "Enter" && sendMessage(event);
+            }}
+          ></input>
+        </div>
+      </div>
 
       <div className="toolbar">
         <label>Select Language: </label>
