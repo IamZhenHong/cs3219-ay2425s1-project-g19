@@ -104,6 +104,7 @@ const MatchingPage = () => {
               state: {
                 difficulty: submission.difficulty,
                 category: submission.category,
+                userId: currentUserInfo.id,
                 matchedUserId: result.matchedUserId
               }
             });
