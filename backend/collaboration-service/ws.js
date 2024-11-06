@@ -86,8 +86,8 @@ function handleCreateRoom(ws, data) {
   //   wsClients.set(user, ws);
   //   ws.userId = data.users.use;
   // }
-  // wsClients.set(data.users[0], ws);
-  // ws.userId = data.users[0];
+  wsClients.set(data.users[0], ws);
+  ws.userId = data.users[0];
   // console.log(data.users);
 
   // Create and store a new room on the server
@@ -127,7 +127,6 @@ function handleJoinRoom(ws, data) {
 
   if (room) {
     ws.roomId = roomId;
-    wsClients.set(userId, ws);
 
     // Send current room state
     ws.send(
@@ -251,13 +250,9 @@ function broadcastToRoom(roomId, message, excludeUserId = null) {
         const ws = wsClients.get(userId);
         if (ws) {
           ws.send(JSON.stringify(message));
-        } else {
-          console.error(`No WebSocket connection found for user ${userId}`);
         }
       }
     });
-  } else {
-    console.error(`Room ${roomId} not found`);
   }
 }
 
