@@ -204,9 +204,14 @@ const CollaborationRoom = () => {
       <p>Status: {status}</p>
       <div className="flex">
         <div className="questionContainer flex-1">Questions</div>
-        <div className="flex-1 flex flex-col">
+        <div
+          className="flex-1 flex flex-col"
+          style={{ backgroundColor: "rgb(30, 30, 30)" }}
+        >
           <div className="toolbar">
-            <label>Select Language: </label>
+            <label style={{ color: "rgb(255, 255, 255)" }}>
+              Select Language:{" "}
+            </label>
             <select
               value={language}
               onChange={(e) => {
