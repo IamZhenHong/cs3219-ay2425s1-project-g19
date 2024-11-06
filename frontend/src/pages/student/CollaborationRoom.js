@@ -23,7 +23,7 @@ const CollaborationRoom = () => {
   const { difficulty, category, userId, matchedUserId } = location.state || {};
 
   // Generate the userId only once when the component is first mounted
-  const userId = useRef(`user-${Math.random().toString(36).substr(2, 9)}`).current;
+  // const userId = useRef(`user-${Math.random().toString(36).substr(2, 9)}`).current;
 
   const [ws, setWs] = useState(null); // Manage the WebSocket connection here.
   const [code, setCode] = useState("// Start coding...");
