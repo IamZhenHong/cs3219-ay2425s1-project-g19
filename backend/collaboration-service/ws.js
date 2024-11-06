@@ -22,7 +22,7 @@ const setupWebSocket = (server) => {
       }
     });
 
-    ws.on('close', () => {
+    ws.on("close", () => {
       console.log("User disconnected");
       handleDisconnect(ws);
     });
@@ -53,11 +53,11 @@ function handleMessage(ws, data) {
       handleCodeChange(data);
       break;
 
-    case 'LANGUAGE_CHANGE':
+    case "LANGUAGE_CHANGE":
       handleLanguageChange(data);
       break;
 
-    case 'CURSOR_MOVE':
+    case "CURSOR_MOVE":
       handleCursorMove(data);
       break;
 
@@ -116,15 +116,11 @@ function handleSendMessage(ws, data) {
   const { roomId, userId, message } = data;
   const room = roomManager.getRoom(roomId);
   if (room) {
-    broadcastToRoom(
-      roomId,
-      {
-        type: "MESSAGE",
-        userId,
-        message,
-      },
-      userId
-    );
+    broadcastToRoom(roomId, {
+      type: "MESSAGE",
+      userId,
+      message,
+    });
   } else {
     console.error(`Room ${roomId} not found for user ${userId}`);
   }
@@ -217,11 +213,15 @@ function handleLanguageChange(data) {
 
   if (room) {
     console.log(`Language changed for room ${roomId}: ${language}`);
-    broadcastToRoom(roomId, {
-      type: 'LANGUAGE_CHANGE',
-      language,
+    broadcastToRoom(
+      roomId,
+      {
+        type: "LANGUAGE_CHANGE",
+        language,
+        userId,
+      },
       userId
-    }, userId);
+    );
   } else {
     console.error(`Room ${roomId} not found for user ${userId}`);
   }
@@ -271,8 +271,10 @@ function broadcastToRoom(roomId, message, excludeUserId = null) {
   const room = roomManager.getRoom(roomId);
   // console.log(room);
   if (room) {
-    console.log(`Broadcasting message to room: ${roomId}, excluding user: ${excludeUserId}`);
-    room.connectedUsers.forEach(userId => {
+    console.log(
+      `Broadcasting message to room: ${roomId}, excluding user: ${excludeUserId}`
+    );
+    room.connectedUsers.forEach((userId) => {
       if (userId !== excludeUserId) {
         const ws = wsClients.get(userId);
         if (ws) {
