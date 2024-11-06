@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams, useLocation } from "react-router-dom";
+import ChatHeader from "../../components/chat/ChatHeader.js";
+import Text from "../../components/chat/Text.js";
+import TextInput from "../../components/chat/TextInput.js";
 
 const languages = [
   { label: "JavaScript", value: "javascript" },
@@ -238,14 +241,14 @@ const CollaborationRoom = () => {
         </div>
         <div className="chatMainContainer flex-1">
           <div className="chatContainer flex justify-center items-center h-screen bg-[#1A1A1D] sm:h-full ">
-            <div className="container flex-1 flex-col justify-between bg-white h-[60%] w-[35%] sm:w-full sm:h-full md:w-[60%]">
-              <input
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                onKeyDown={(event) => {
-                  event.key === "Enter" && sendMessage(event);
-                }}
-              ></input>
+            <div className="container flex-1 flex-col justify-between bg-white h-[60%] w-[35%] sm:w-full sm:h-full md:w-[60%] p-0 relative">
+              <ChatHeader roomName={roomId} />
+              <Text messages={messages} name={userId} />
+              <TextInput
+                message={message}
+                setMessage={setMessage}
+                sendMessage={sendMessage}
+              />
             </div>
           </div>
         </div>
