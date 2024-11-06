@@ -19,3 +19,23 @@ export const getMatch = async (data) => {
       throw error; // Re-throw the error to handle it in the component
   }
 };
+
+// Function to cancel a match
+export const cancelMatch = async (data) => {
+  const CANCEL_API_URL = `${API_URL}/cancel`; // Define the cancel endpoint
+  try {
+    const response = await axios.post(CANCEL_API_URL,  data );
+    if (response.status === 200) {
+      return response.data; // Return the response data if the cancellation is successful
+    } else {
+      throw new Error("Cancellation failed.");
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error("Error canceling match:", error.response.data);
+      throw new Error(error.response.data.message);
+    }
+    console.error("Error canceling match:", error);
+    throw error; // Re-throw the error to handle it in the component
+  }
+};

@@ -38,7 +38,7 @@ const setupConsumer = () => {
         const userRequest = JSON.parse(msg.content.toString());
         console.log('Received user request:', userRequest);
 
-        if (userRequest.action === 'cancel') {
+        if (userRequest.status === 'cancel') {
           // Handle cancel request
           const userIndex = unmatchedUsers.findIndex(u => u.userId === userRequest.userId);
           if (userIndex !== -1) {
