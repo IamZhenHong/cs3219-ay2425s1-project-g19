@@ -23,6 +23,7 @@ const setupWebSocket = (server) => {
     });
 
     ws.on('close', () => {
+      console.log("User disconnected");
       handleDisconnect(ws);
     });
   });
@@ -46,6 +47,10 @@ function handleMessage(ws, data) {
 
     case 'CODE_CHANGE':
       handleCodeChange(data);
+      break;
+
+    case 'LANGUAGE_CHANGE':
+      handleLanguageChange(data);
       break;
 
     case 'CURSOR_MOVE':
@@ -96,6 +101,8 @@ function handleJoinRoom(ws, data) {
   const room = roomManager.getRoom(roomId);
 
   if (room) {
+    wsClients.set(data.userId, ws);
+    ws.userId = data.userId;
     room.addUser(userId);
     ws.roomId = roomId;
 
@@ -154,6 +161,22 @@ function handleCursorMove(data) {
   }, userId);
 }
 
+function handleLanguageChange(data) {
+  const { roomId, language, userId } = data;
+  const room = roomManager.getRoom(roomId);
+
+  if (room) {
+    console.log(`Language changed for room ${roomId}: ${language}`);
+    broadcastToRoom(roomId, {
+      type: 'LANGUAGE_CHANGE',
+      language,
+      userId
+    }, userId);
+  } else {
+    console.error(`Room ${roomId} not found for user ${userId}`);
+  }
+}
+
 function handleLeaveRoom(ws, data) {
   const { roomId, userId } = data;
   cleanupRoom(roomId, userId, ws);
@@ -193,14 +216,22 @@ function cleanupRoom(roomId, userId, ws) {
 function broadcastToRoom(roomId, message, excludeUserId = null) {
   const room = roomManager.getRoom(roomId);
   if (room) {
+    console.log(`Broadcasting message to room: ${roomId}, excluding user: ${excludeUserId}`);
     room.connectedUsers.forEach(userId => {
       if (userId !== excludeUserId) {
         const ws = wsClients.get(userId);
         if (ws) {
+          console.log(`Sending message to user: ${userId}`);
           ws.send(JSON.stringify(message));
+        } else {
+          console.log(`No WebSocket connection found for user: ${userId}`);
         }
+      } else {
+        console.log(`Skipping user: ${userId} (excluded)`);
       }
     });
+  } else {
+    console.log(`Room ${roomId} not found`);
   }
 }
 
