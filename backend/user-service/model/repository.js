@@ -74,15 +74,17 @@ const deleteUserById = async (userId) => {
 };
 
 const addNewSession = async (userId, sessionData) => {
-  return UserModel.findByIdAndUpdate(
-    userId,
-    {
-      $push: {
-        sessionHistory: sessionData, // sessionData should contain roomId, difficulty, category, startDate
-      },
-    },
-    { new: true }
-  );
+  try {
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId, // Ensure userId is treated as ObjectId
+      { $push: { sessionHistory: sessionData } }, // Add sessionData to sessionHistory array
+      { new: true } // Return the updated document
+    );
+    return updatedUser;
+  } catch (error) {
+    console.error("Error in addNewSession:", error);
+    throw error;
+  }
 };
 
 module.exports = {

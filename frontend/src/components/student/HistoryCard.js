@@ -8,11 +8,11 @@ const HistoryCard = ({ category, difficulty, questionImage, startDate, userImage
       {/* Background Image */}
       <div
         className="w-full h-32 rounded-lg bg-cover bg-center flex justify-between items-center text-white p-4"
-        style={{
-          backgroundImage: `url(${questionImage || defaultBackground})`,
-          backgroundSize: "cover", // Ensures the image covers the container
-          backgroundPosition: "center", // Centers the image
-        }}
+        // style={{
+        //   backgroundImage: `url(${questionImage || defaultBackground})`,
+        //   backgroundSize: "cover", // Ensures the image covers the container
+        //   backgroundPosition: "center", // Centers the imagie
+        // }}
       >
         {/* Topic and Difficulty */}
         <div className="flex flex-col">
