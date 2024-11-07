@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams, useLocation } from "react-router-dom";
 import { askCopilot } from "../../api/CopilotApi";
+
 const languages = [
   { label: "JavaScript", value: "javascript" },
   { label: "Python", value: "python" },
@@ -30,7 +31,7 @@ const CollaborationRoom = () => {
   
   const [userPrompt, setUserPrompt] = useState(""); // Track the user input for the prompt
   const [copilotResponse, setCopilotResponse] = useState(""); // Store the response from Copilot API
-
+  
   const monacoRef = useRef(null); // Store reference to Monaco instance
   const editorRef = useRef(null); // Store reference to Monaco Editor instance
 

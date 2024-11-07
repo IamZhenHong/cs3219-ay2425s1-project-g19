@@ -41,7 +41,7 @@ const setupConsumer = () => {
         const userRequest = JSON.parse(msg.content.toString());
         console.log('Received user request:', userRequest);
 
-        if (userRequest.action === 'cancel') {
+        if (userRequest.status === 'cancel') {
           // Handle cancel request
           const userIndex = unmatchedUsers.findIndex(u => u.userId === userRequest.userId);
           if (userIndex !== -1) {
@@ -95,9 +95,9 @@ const setupConsumer = () => {
                 difficulty: userRequest.difficulty,
                 category: userRequest.category
               });
-
+              console.log(response.data);
               const { roomId } = response.data;
-
+  
               // Notify both users
               [userRequest, match].forEach(user => {
                 sendWsMessage(user.userId, {
@@ -108,10 +108,10 @@ const setupConsumer = () => {
                   category: userRequest.category
                 });
               });
-
+  
               // Clear the timeouts for both users
               clearTimeout(match.timeoutId);
-
+  
               // Remove matched user from unmatchedUsers
               unmatchedUsers = unmatchedUsers.filter(u => u.userId !== match.userId);
             } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import MatchForm from "../../components/student/MatchForm";
-import { getMatch } from "../../api/MatchingApi";
+import { getMatch, cancelMatch } from "../../api/MatchingApi";
 import { getUserByEmail } from "../../api/UserApi";
 import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
@@ -99,7 +99,15 @@ const MatchingPage = () => {
             setStatus(
               `Match found! You are paired with user ${result.matchedUserId}`
             );
-            navigate(`/room/${result.roomId}`);
+            // Navigate to collaboration room
+            navigate(`/room/${result.roomId}`, {
+              state: {
+                difficulty: submission.difficulty,
+                category: submission.category,
+                userId: currentUserInfo.id,
+                matchedUserId: result.matchedUserId
+              }
+            });
             setIsMatching(false);
           } else if (result.status === "timeout") {
             setStatus("No match found. Please try again.");
@@ -128,7 +136,9 @@ const MatchingPage = () => {
     [currentUserInfo, ws, navigate]
   );
 
-  const handleCancelRequest = () => {
+  const handleCancelRequest = async () => {
+    const data = { status: "cancel", userId: currentUserInfo.id };
+    const res = await cancelMatch(data)
     if (ws) {
       ws.send(JSON.stringify({ userId: currentUserInfo.id, action: "cancel" }));
       setStatus("Cancelled match request...");
