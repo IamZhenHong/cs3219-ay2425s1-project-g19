@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/user-service:v2
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PORT
+              value: "8000"
+            - name: ENV
+              value: "PROD"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: peerprep-secrets
+                  key: JWT_SECRET
+            - name: DB_CLOUD_URI
+              valueFrom:
+                secretKeyRef:
+                  name: peerprep-secrets
+                  key: DB_CLOUD_URI
+            - name: DB_LOCAL_URI
+              valueFrom:
+                secretKeyRef:
+                  name: peerprep-secrets
+                  key: DB_LOCAL_URI
+      restartPolicy: Always

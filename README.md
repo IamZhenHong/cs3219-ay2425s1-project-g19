@@ -14,16 +14,10 @@ Fisrt download or `git clone` our code.
 2. Add a file named `.env` to current directory (i.e., project root directory), with the following content:
 
     ```
-    # user-service
     JWT_SECRET=
     DB_CLOUD_URI=
     DB_LOCAL_URI=
-
-    # questions-service
     MONGO_URL=
-
-    # matching-service
-    CLOUDAMQP_URL=
     ```
     Fill in it with your own environment variable values.
 3. 
@@ -67,7 +61,20 @@ Fisrt download or `git clone` our code.
     MONGO_URL=
     ```
     Fill in it with your own environment variable values.
-3. 
+3. Add a file named `.env` to matching-service directory (i.e., `./backend/matching-service`), with the following content:
+
+    ```
+    PORT=8002
+    ```
+    Fill in it with your own environment variable values.
+4. Add a file named `.env` to collaboration-service directory (i.e., `./backend/collaboration-service`), with the following content:
+
+    ```
+    PORT=8003
+    ```
+    Fill in it with your own environment variable values.
+5. **Make sure RabbitMQ is running on port `5672`.**
+6.
 - If you are running on MacOS or Linux, change back to the project root directory and run the script: 
 
     `./run_all_services.sh`
