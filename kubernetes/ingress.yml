@@ -1,0 +1,69 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/websocket-services: "matching-service,collaboration-service"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    # nginx.ingress.kubernetes.io/connection-proxy-header: "keep-alive"
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$binary_remote_addr"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      # Auth Service
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 8000
+      # User Service
+      - path: /users
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 8000
+      # Questions Service
+      - path: /questions
+        pathType: Prefix
+        backend:
+          service:
+            name: questions-service
+            port:
+              number: 8001
+      # Matching Service HTTP
+      - path: /matching
+        pathType: Prefix
+        backend:
+          service:
+            name: matching-service
+            port:
+              number: 8002
+      # Matching Service WebSocket
+      - path: /ws-matching
+        pathType: Prefix
+        backend:
+          service:
+            name: matching-service
+            port:
+              number: 8002
+      # Collaboration Service WebSocket
+      - path: /ws-collaboration
+        pathType: Prefix
+        backend:
+          service:
+            name: collaboration-service
+            port:
+              number: 8003

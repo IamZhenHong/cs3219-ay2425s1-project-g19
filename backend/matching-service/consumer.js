@@ -51,8 +51,8 @@ const setupConsumer = () => {
           } else {
               console.log(`No unmatched request found for user ${userRequest.userId}`);
           }
-    sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
-    console.log(`Cancelled matching request for user ${userRequest.userId}`);
+          sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
+          console.log(`Cancelled matching request for user ${userRequest.userId}`);
         } else {
           // Handle match request
           const match = unmatchedUsers.find(u => 

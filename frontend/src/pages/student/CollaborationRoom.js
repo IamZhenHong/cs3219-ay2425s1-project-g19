@@ -13,6 +13,8 @@ const languages = [
   { label: "HTML", value: "html" },
 ];
 
+const COLLABORATION_WS_URL = process.env.REACT_APP_COLLABORATION_WS_URL || "ws://localhost:8003/ws-collaboration";
+
 const CollaborationRoom = () => {
   const [status, setStatus] = useState("Connecting...");
   const { roomId } = useParams();
@@ -39,7 +41,7 @@ const CollaborationRoom = () => {
 
   // Create a WebSocket connection when the component mounts.
   useEffect(() => {
-    const websocket = new WebSocket("ws://localhost:8003");
+    const websocket = new WebSocket(COLLABORATION_WS_URL);
 
     let pingInterval;
 
