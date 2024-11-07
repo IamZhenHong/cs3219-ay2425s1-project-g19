@@ -1,7 +1,13 @@
+const dotenv = require('dotenv');
+dotenv.config();
 const express = require('express');
 const cors = require('cors');
 const { setupWebSocket } = require('./ws');
 const roomRoutes = require('./routes/room');
+const { setupConsumer } = require('./consumer');
+require('dotenv').config();
+const amqp = require('amqplib/callback_api');
+
 
 const app = express();
 const PORT = process.env.PORT || 8003;
@@ -17,3 +23,7 @@ const server = app.listen(PORT, () => {
 app.use('/rooms', roomRoutes);
 
 setupWebSocket(server);
+
+setupConsumer();
+
+
