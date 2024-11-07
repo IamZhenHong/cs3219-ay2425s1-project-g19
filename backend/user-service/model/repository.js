@@ -85,33 +85,6 @@ const addNewSession = async (userId, sessionData) => {
   );
 };
 
-/**
- * Deletes a specific session from the sessionHistory of a user.
- * @param {String} userId - The ID of the user.
- * @param {String} sessionId - The ID of the session to delete.
- */
-const deleteSession = async (userId, sessionId) => {
-  try {
-    const result = await UserModel.findByIdAndUpdate(
-      userId,
-      {
-        $pull: {
-          sessionHistory: { sessionId: sessionId }, // Remove session with the matching sessionId
-        },
-      },
-      { new: true } // Return the updated document
-    );
-
-    if (result) {
-      console.log("Session deleted from history:", result);
-    } else {
-      console.log("User or session not found.");
-    }
-  } catch (error) {
-    console.error("Error deleting session:", error);
-  }
-};
-
 module.exports = {
   connectToDB,
   createUser,
@@ -123,6 +96,5 @@ module.exports = {
   updateUserById,
   updateUserPrivilegeById,
   deleteUserById,
-  addNewSession,
-  deleteSession,
+  addNewSession
 };
