@@ -1,8 +1,4 @@
 .env
 .history
-<<<<<<< Updated upstream
 kubernetes/secrets.env
 node_modules/
-=======
-node_modules
->>>>>>> Stashed changes
