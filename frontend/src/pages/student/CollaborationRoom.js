@@ -272,7 +272,7 @@ const CollaborationRoom = () => {
           </div>
         </div>
 
-        <div className="chatContainer flex-1">
+        {/* <div className="chatContainer flex-1">
           <div className="container">
             <input
               value={message}
@@ -282,21 +282,7 @@ const CollaborationRoom = () => {
               }}
             ></input>
           </div>
-        </div>
-        <div className="prompt-container">
-          <textarea
-            placeholder="Enter prompt for Copilot..."
-            value={userPrompt}
-            onChange={(e) => setUserPrompt(e.target.value)}
-            rows="4"
-            cols="50"
-          />
-          <button onClick={handleSubmitPrompt}>Submit Code & Prompt</button>
-        </div>
-        <div className="copilot-response">
-          <h3>Copilot Response:</h3>
-          <pre>{copilotResponse}</pre>
-        </div>
+        </div> */}
 
         <div className="chatMainContainer flex-1">
           <div className="chatContainer flex justify-center items-center h-screen bg-[#1A1A1D] sm:h-full ">
@@ -308,6 +294,22 @@ const CollaborationRoom = () => {
                 setMessage={setMessage}
                 sendMessage={sendMessage}
               />
+            </div>
+          </div>
+          <div>
+            <div className="prompt-container">
+              <textarea
+                placeholder="Enter prompt for Copilot..."
+                value={userPrompt}
+                onChange={(e) => setUserPrompt(e.target.value)}
+                rows="4"
+                cols="50"
+              />
+            </div>
+            <button onClick={handleSubmitPrompt}>Submit Code & Prompt</button>
+            <div className="copilot-response">
+              <h3>Copilot Response:</h3>
+              <pre>{copilotResponse}</pre>
             </div>
           </div>
         </div>
