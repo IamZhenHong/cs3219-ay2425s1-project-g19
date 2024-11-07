@@ -4,7 +4,6 @@ import { getMatch, cancelMatch } from "../../api/MatchingApi";
 import { getUserByEmail } from "../../api/UserApi";
 import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
-import matchingPicture from "../../assets/matching-picture.png";
 import Loader from "../../components/utils/Loader";
 import Modal from "../../components/student/Modal";
 

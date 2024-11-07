@@ -1,6 +1,8 @@
 const WebSocket = require("ws");
 const { v4: uuidv4 } = require("uuid");
 const { RoomManager } = require("./roomManager");
+const { addNewSession } = require('./../user-service/model/repository');
+
 
 // Instantiate the RoomManager
 const roomManager = new RoomManager();
@@ -133,6 +135,17 @@ function handleJoinRoom(ws, data) {
   if (room) {
     room.addUser(userId);
     ws.roomId = roomId;
+
+    // Now you have access to room details like `difficulty` and `category`
+    const { difficulty, category } = room;
+
+    const sessionData = {
+      roomId: roomId,
+      difficulty: difficulty,
+      category: category.join(", "),
+    };
+    // Update session history with roomId, startTime, difficulty, and category
+    addNewSession(userId, sessionData);
 
     // Send current room state
     ws.send(

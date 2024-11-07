@@ -29,15 +29,15 @@ const UserModelSchema = new Schema({
   sessionHistory: {
     type: [
       {
-        sessionId: {
+        roomId: {
           type: String,
           required: true,
         },
-        matchedUserId: {
+        difficulty: {
           type: String,
           required: true,
         },
-        questionId: {
+        category: {
           type: String,
           required: true,
         },

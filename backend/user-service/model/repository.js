@@ -74,11 +74,11 @@ const deleteUserById = async (userId) => {
 };
 
 const addNewSession = async (userId, sessionData) => {
-  await UserModel.findByIdAndUpdate(
+  return UserModel.findByIdAndUpdate(
     userId,
     {
       $push: {
-        sessionHistory: sessionData, // sessionData should contain sessionId, matchedUserId, questionId, startDate
+        sessionHistory: sessionData, // sessionData should contain roomId, difficulty, category, startDate
       },
     },
     { new: true }
