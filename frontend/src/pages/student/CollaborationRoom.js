@@ -86,8 +86,6 @@ const CollaborationRoom = () => {
         setStatus(`Failed to create room: ${result.message}`);
       } else if (result.type === "LANGUAGE_CHANGE") {
         setLanguage(result.language);
-      // } else if (result.type = "PROMPT_CHANGE") {
-      //   setUserPrompt(result.prompt);
       } else if (result.type === "ASK_COPILOT") {
         setCopilotResponse(result.response);
       }
@@ -124,21 +122,6 @@ const CollaborationRoom = () => {
           type: "CODE_CHANGE",
           roomId: roomId,
           code: newCode,
-          userId: userId,
-        })
-      );
-    }
-  };
-
-  const onPromptChange = (event) => {
-    const newPrompt = event.target.value;
-    setUserPrompt(newPrompt);
-    if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(
-        JSON.stringify({
-          type: "PROMPT_CHANGE",
-          roomId: roomId,
-          prompt: newPrompt,
           userId: userId,
         })
       );
@@ -292,7 +275,7 @@ const CollaborationRoom = () => {
             <textarea
               placeholder="Enter prompt for Copilot..."
               value={userPrompt}
-              onChange = {onPromptChange}
+              onChange={(e) => setUserPrompt(e.target.value)}
               rows="4"
               cols="50"
             />

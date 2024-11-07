@@ -65,10 +65,6 @@ function handleMessage(ws, data) {
       handleLeaveRoom(ws, data);
       break;
 
-    // case "PROMPT_CHANGE":
-    //   handlePromptChange(data);
-    //   break;
-
     default:
       console.log("Unknown message type:", data.type);
   }
@@ -115,7 +111,6 @@ function handleCreateRoom(ws, data) {
     })
   );
 }
-
 
 function handleSendMessage(ws, data) {
   const { roomId, userId, message } = data;
@@ -199,28 +194,6 @@ function handleCodeChange(data) {
       userId
     );
   } else {
-    console.error(`Room ${roomId} not found for user ${userId}`);
-  }
-}
-
-function handlePromptChange(data) {
-  const { roomId, prompt, userId } = data;
-  const room = roomManager.getRoom(roomId);
-  if (room) {
-
-    room.updatePrompt(prompt);
-    console.log(`Prompt updated for room ${roomId}: ${prompt}`);
-    broadcastToRoom
-    (
-      roomId,
-      {
-        type: "PROMPT_CHANGE",
-        prompt,
-        userId
-      },
-      userId
-    );
-  } else { 
     console.error(`Room ${roomId} not found for user ${userId}`);
   }
 }

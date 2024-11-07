@@ -7,8 +7,6 @@ class Room {
     this.connectedUsers = new Set(users);
     this.code = '';
     this.createdAt = Date.now();
-    this.prompt = ''; 
-    this.copilotResponse = '';
   }
 
   addUser(userId) {
@@ -28,14 +26,6 @@ class Room {
     this.code = code;
   }
 
-  updatePrompt(prompt) {
-    this.prompt = prompt;
-  }
-  
-  updateCopilotResponse(response) {
-    this.copilotResponse = response;
-  }
-
   isUserAuthorized(userId) {
     return this.users.includes(userId);
   }
@@ -49,8 +39,6 @@ class Room {
       connectedUsers: Array.from(this.connectedUsers),
       code: this.code,
       createdAt: this.createdAt,
-      prompt: this.prompt,
-      copilotResponse: this.copilotResponse
     };
   }
 }
