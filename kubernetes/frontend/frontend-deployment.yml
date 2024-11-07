@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/frontend:v3
+          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/frontend:v4
           ports:
             - containerPort: 3000
           env:
