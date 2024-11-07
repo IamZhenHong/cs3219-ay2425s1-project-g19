@@ -3,11 +3,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const CLOUDAMQP_URL = process.env.CLOUDAMQP_URL;
+const LOCAL_RABBITMQ_URL = process.env.LOCAL_RABBITMQ_URL || "amqp://localhost:5672";
 
 let channel;
 
 // Establish connection to RabbitMQ and create a channel
-amqp.connect(CLOUDAMQP_URL, (err, conn) => {
+amqp.connect(LOCAL_RABBITMQ_URL, (err, conn) => {
   if (err) throw err;
 
   conn.createChannel((err, ch) => {

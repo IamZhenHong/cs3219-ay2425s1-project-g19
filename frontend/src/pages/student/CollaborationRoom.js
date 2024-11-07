@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams, useLocation } from "react-router-dom";
 import { askCopilot } from "../../api/CopilotApi";
+import ChatHeader from "../../components/chat/ChatHeader.js";
+import Text from "../../components/chat/Text.js";
+import TextInput from "../../components/chat/TextInput.js";
 
 const languages = [
   { label: "JavaScript", value: "javascript" },
@@ -10,6 +13,8 @@ const languages = [
   { label: "C++", value: "cpp" },
   { label: "HTML", value: "html" },
 ];
+
+const COLLABORATION_WS_URL = process.env.REACT_APP_COLLABORATION_WS_URL || "ws://localhost:8003/ws-collaboration";
 
 const CollaborationRoom = () => {
   const [status, setStatus] = useState("Connecting...");
@@ -40,7 +45,7 @@ const CollaborationRoom = () => {
 
   // Create a WebSocket connection when the component mounts.
   useEffect(() => {
-    const websocket = new WebSocket("ws://localhost:8003");
+    const websocket = new WebSocket(COLLABORATION_WS_URL);
 
     let pingInterval;
 
@@ -242,9 +247,14 @@ const CollaborationRoom = () => {
       <p>Status: {status}</p>
       <div className="flex">
         <div className="questionContainer flex-1">Questions</div>
-        <div className="flex-1 flex flex-col">
+        <div
+          className="flex-1 flex flex-col"
+          style={{ backgroundColor: "rgb(30, 30, 30)" }}
+        >
           <div className="toolbar">
-            <label>Select Language: </label>
+            <label style={{ color: "rgb(255, 255, 255)" }}>
+              Select Language:{" "}
+            </label>
             <select
               value={language}
               onChange={(e) => {
@@ -277,15 +287,17 @@ const CollaborationRoom = () => {
             />
           </div>
         </div>
-        <div className="chatContainer flex-1">
-          <div className="container">
-            <input
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              onKeyDown={(event) => {
-                event.key === "Enter" && sendMessage(event);
-              }}
-            ></input>
+        <div className="chatMainContainer flex-1">
+          <div className="chatContainer flex justify-center items-center h-screen bg-[#1A1A1D] sm:h-full ">
+            <div className="container flex-1 flex-col justify-between bg-white h-[60%] w-[35%] sm:w-full sm:h-full md:w-[60%] p-0 relative">
+              <ChatHeader roomName={roomId} />
+              <Text messages={messages} name={userId} />
+              <TextInput
+                message={message}
+                setMessage={setMessage}
+                sendMessage={sendMessage}
+              />
+            </div>
           </div>
         </div>
         <div className="prompt-container">
