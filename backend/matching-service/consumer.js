@@ -1,3 +1,6 @@
+const { Mistral } = require('@mistralai/mistralai');
+
+
 const amqp = require('amqplib/callback_api');
 const { sendWsMessage } = require('./ws');
 const axios = require('axios');
@@ -52,6 +55,29 @@ const setupConsumer = () => {
           }
     sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
     console.log(`Cancelled matching request for user ${userRequest.userId}`);
+        } else if (userRequest.status === 'askcopilot') {
+          // Handle askcopilot request: Call LLM API with the data
+          const apiKey = process.env.Mistral_API_KEY;
+          const client = new Mistral ({apiKey: apiKey});
+          const prompt = userRequest.data.prompt;
+          const code = userRequest.data.code;
+          model = 'mistral-large-latest'
+          chat_response = await client.chat.complete(
+
+            model=model,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an experienced developer. Please provide detailed and accurate responses."
+                },
+                {
+                    "role": "user",
+                    "content": "Prompt: ${prompt}\nCode: ${code}"
+                }
+            ]
+        )
+        
+        sendWsMessage(userRequest.userId, { status: 'askcopilot', response: chat_response });
         } else {
           // Handle match request
           const match = unmatchedUsers.find(u => 

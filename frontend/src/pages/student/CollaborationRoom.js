@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams, useLocation } from "react-router-dom";
+import { askCopilot } from "../../api/CopilotApi";
 
 const languages = [
   { label: "JavaScript", value: "javascript" },
@@ -27,7 +28,10 @@ const CollaborationRoom = () => {
   const [ws, setWs] = useState(null); // Manage the WebSocket connection here.
   const [code, setCode] = useState("// Start coding...");
   const [language, setLanguage] = useState("javascript");
-
+  
+  const [userPrompt, setUserPrompt] = useState(""); // Track the user input for the prompt
+  const [copilotResponse, setCopilotResponse] = useState(""); // Store the response from Copilot API
+  
   const monacoRef = useRef(null); // Store reference to Monaco instance
   const editorRef = useRef(null); // Store reference to Monaco Editor instance
 
@@ -82,6 +86,8 @@ const CollaborationRoom = () => {
         setStatus(`Failed to create room: ${result.message}`);
       } else if (result.type === "LANGUAGE_CHANGE") {
         setLanguage(result.language);
+      } else if (result.type === "ASK_COPILOT") {
+        setCopilotResponse(result.response);
       }
     };
 
@@ -192,6 +198,24 @@ const CollaborationRoom = () => {
     }
   };
 
+  const handleSubmitPrompt = async () => {
+    const promptData = {
+      code: code,
+      prompt: userPrompt,
+      type: "ASK_COPILOT",
+      roomId: roomId,
+    };
+
+    try {
+      const response = await askCopilot(promptData);
+      
+    } catch (error) {
+      console.error("Error calling Copilot API:", error);
+      setCopilotResponse("Error: " + error);
+    }
+  };
+
+
   console.log("Message:", message);
   console.log("Messages:", messages);
 
@@ -247,6 +271,20 @@ const CollaborationRoom = () => {
             ></input>
           </div>
         </div>
+        <div className="prompt-container">
+            <textarea
+              placeholder="Enter prompt for Copilot..."
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+              rows="4"
+              cols="50"
+            />
+            <button onClick={handleSubmitPrompt}>Submit Code & Prompt</button>
+          </div>
+          <div className="copilot-response">
+            <h3>Copilot Response:</h3>
+            <pre>{copilotResponse}</pre>
+          </div>
       </div>
     </div>
   );
