@@ -1,4 +1,9 @@
-const WebSocket = require('ws');
+const WebSocket = require("ws");
+const { v4: uuidv4 } = require("uuid");
+const { RoomManager } = require("./roomManager");
+
+// Instantiate the RoomManager
+const roomManager = new RoomManager();
 
 // Store clients and rooms
 const wsClients = new Map();
@@ -29,81 +34,180 @@ const setupWebSocket = (server) => {
 
 function handleMessage(ws, data) {
   switch (data.type) {
-    case 'CONNECT':
-      handleConnect(ws, data);
+    // case 'CONNECT':
+    //   handleConnect(ws, data);
+    //   break;
+
+    case "CREATE_ROOM": // Add this case to handle room creation
+      handleCreateRoom(ws, data);
       break;
 
-    case 'JOIN_ROOM':
+    case "SEND_MESSAGE":
+      handleSendMessage(ws, data);
+      break;
+
+    case "JOIN_ROOM":
       handleJoinRoom(ws, data);
       break;
 
-    case 'CODE_CHANGE':
+    case "CODE_CHANGE":
       handleCodeChange(data);
       break;
 
-    case 'CURSOR_MOVE':
+    case "LANGUAGE_CHANGE":
+      handleLanguageChange(data);
+      break;
+
+    case "CURSOR_MOVE":
       handleCursorMove(data);
       break;
 
-    case 'LEAVE_ROOM':
+    case "LEAVE_ROOM":
       handleLeaveRoom(ws, data);
       break;
 
     default:
-      console.log('Unknown message type:', data.type);
+      console.log("Unknown message type:", data.type);
   }
 }
 
-function handleConnect(ws, data) {
-  wsClients.set(data.userId, ws);
-  ws.userId = data.userId;
+function handleCreateRoom(ws, data) {
+  const { roomId, users, difficulty, category } = data;
+
+  wsClients.set(users[0], ws);
+  ws.userId = users[0];
+
+  // Create and store a new room on the server
+  const newRoom = roomManager.createRoom(roomId, users, difficulty, category);
+
+  // Send confirmation to the client that room was created successfully
+  ws.send(
+    JSON.stringify({
+      type: "CREATE_SUCCESS",
+      message: `Room ${roomId} created successfully`,
+      room: newRoom.toJSON(),
+    })
+  );
+}
+
+function handleSendMessage(ws, data) {
+  const { roomId, userId, message } = data;
+  const room = roomManager.getRoom(roomId);
+  if (room) {
+    broadcastToRoom(roomId, {
+      type: "MESSAGE",
+      userId,
+      message,
+    });
+  } else {
+    console.error(`Room ${roomId} not found for user ${userId}`);
+  }
 }
 
 function handleJoinRoom(ws, data) {
   const { roomId, userId } = data;
-  const room = rooms.get(roomId);
+
+  // Store the connection for the joining user
+  wsClients.set(userId, ws);
+  ws.userId = userId;
+
+  const room = roomManager.getRoom(roomId);
 
   if (room) {
-    room.connectedUsers.add(userId);
+    room.addUser(userId);
     ws.roomId = roomId;
 
     // Send current room state
-    ws.send(JSON.stringify({
-      type: 'ROOM_STATE',
-      code: room.code,
-      users: Array.from(room.connectedUsers)
-    }));
+    ws.send(
+      JSON.stringify({
+        type: "ROOM_STATE",
+        code: room.code,
+        users: Array.from(room.connectedUsers),
+      })
+    );
 
-    // Notify others
-    broadcastToRoom(roomId, {
-      type: 'USER_JOINED',
-      userId,
-      users: Array.from(room.connectedUsers)
-    }, userId);
+    // Notify others in the room
+    broadcastToRoom(
+      roomId,
+      {
+        type: "USER_JOINED",
+        userId,
+        users: Array.from(room.connectedUsers),
+      },
+      userId
+    );
+
+    // Notify the user that they successfully joined
+    ws.send(
+      JSON.stringify({
+        type: "JOIN_SUCCESS",
+        message: `Successfully joined room ${roomId}`,
+        users: Array.from(room.connectedUsers),
+      })
+    );
+  } else {
+    // Notify that the room was not found
+    ws.send(
+      JSON.stringify({
+        type: "JOIN_FAILURE",
+        message: `Room ${roomId} not found`,
+      })
+    );
   }
 }
 
 function handleCodeChange(data) {
   const { roomId, code, userId } = data;
-  const room = rooms.get(roomId);
+  const room = roomManager.getRoom(roomId);
 
   if (room) {
-    room.code = code;
-    broadcastToRoom(roomId, {
-      type: 'CODE_UPDATE',
-      code,
+    room.updateCode(code);
+    console.log(`Code updated for room ${roomId}: ${code}`);
+    broadcastToRoom(
+      roomId,
+      {
+        type: "CODE_UPDATE",
+        code,
+        userId,
+      },
       userId
-    }, userId);
+    );
+  } else {
+    console.error(`Room ${roomId} not found for user ${userId}`);
   }
 }
 
 function handleCursorMove(data) {
   const { roomId, position, userId } = data;
-  broadcastToRoom(roomId, {
-    type: 'CURSOR_UPDATE',
-    position,
+  broadcastToRoom(
+    roomId,
+    {
+      type: "CURSOR_UPDATE",
+      position,
+      userId,
+    },
     userId
-  }, userId);
+  );
+}
+
+function handleLanguageChange(data) {
+  const { roomId, language, userId } = data;
+  const room = roomManager.getRoom(roomId);
+
+  if (room) {
+    console.log(`Language changed for room ${roomId}: ${language}`);
+    broadcastToRoom(
+      roomId,
+      {
+        type: "LANGUAGE_CHANGE",
+        language,
+        userId,
+      },
+      userId
+    );
+  } else {
+    console.error(`Room ${roomId} not found for user ${userId}`);
+  }
 }
 
 function handleLeaveRoom(ws, data) {
@@ -122,37 +226,52 @@ function handleDisconnect(ws) {
 }
 
 function cleanupRoom(roomId, userId, ws) {
-  const room = rooms.get(roomId);
+  const room = roomManager.getRoom(roomId);
   if (room) {
-    room.connectedUsers.delete(userId);
+    room.removeUser(userId);
 
     if (ws) {
       delete ws.roomId;
     }
 
-    broadcastToRoom(roomId, {
-      type: 'USER_LEFT',
-      userId,
-      users: Array.from(room.connectedUsers)
-    }, userId);
+    broadcastToRoom(
+      roomId,
+      {
+        type: "USER_LEFT",
+        userId,
+        users: Array.from(room.connectedUsers),
+      },
+      userId
+    );
 
     if (room.connectedUsers.size === 0) {
-      rooms.delete(roomId);
+      roomManager.deleteRoom(roomId);
     }
   }
 }
 
 function broadcastToRoom(roomId, message, excludeUserId = null) {
-  const room = rooms.get(roomId);
+  const room = roomManager.getRoom(roomId);
+  // console.log(room);
   if (room) {
-    room.connectedUsers.forEach(userId => {
+    console.log(
+      `Broadcasting message to room: ${roomId}, excluding user: ${excludeUserId}`
+    );
+    room.connectedUsers.forEach((userId) => {
       if (userId !== excludeUserId) {
         const ws = wsClients.get(userId);
         if (ws) {
+          console.log(`Sending message to user: ${userId}`);
           ws.send(JSON.stringify(message));
+        } else {
+          console.log(`No WebSocket connection found for user: ${userId}`);
         }
+      } else {
+        console.log(`Skipping user: ${userId} (excluded)`);
       }
     });
+  } else {
+    console.log(`Room ${roomId} not found`);
   }
 }
 
@@ -171,3 +290,5 @@ const sendWsMessage = (userId, message) => {
 module.exports = {
   setupWebSocket, sendWsMessage, broadcastToRoom
 };
+
+//ws.js
