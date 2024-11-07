@@ -1,8 +1,9 @@
 const WebSocket = require('ws');
-
+const { RoomManager } = require('./roomManager');
 // Store clients and rooms
 const wsClients = new Map();
 const rooms = new Map();
+const roomManager = new RoomManager();
 
 const setupWebSocket = (server) => {
   const wss = new WebSocket.Server({ server });
@@ -143,18 +144,28 @@ function cleanupRoom(roomId, userId, ws) {
 }
 
 function broadcastToRoom(roomId, message, excludeUserId = null) {
-  const room = rooms.get(roomId);
+  const room = roomManager.getRoom(roomId);
+  // console.log(room);
   if (room) {
+    console.log(`Broadcasting message to room: ${roomId}, excluding user: ${excludeUserId}`);
     room.connectedUsers.forEach(userId => {
       if (userId !== excludeUserId) {
         const ws = wsClients.get(userId);
         if (ws) {
+          console.log(`Sending message to user: ${userId}`);
           ws.send(JSON.stringify(message));
+        } else {
+          console.log(`No WebSocket connection found for user: ${userId}`);
         }
+      } else {
+        console.log(`Skipping user: ${userId} (excluded)`);
       }
     });
+  } else {
+    console.log(`Room ${roomId} not found`);
   }
 }
+
 
 // Helper function to send a message to a specific user by userId
 const sendWsMessage = (userId, message) => {
