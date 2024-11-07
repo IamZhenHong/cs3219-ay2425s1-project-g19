@@ -1,4 +1,4 @@
-const { sendToQueue } = require("../../collaboration-service/mq");
+const { sendToQueue } = require("../mq");
 
 const askCopilot = async (req, res) => {
 
