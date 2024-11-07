@@ -8,7 +8,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const CLOUDAMQP_URL = process.env.CLOUDAMQP_URL;
-const COLLAB_SERVICE_URL = "http://localhost:8003";
+const LOCAL_RABBITMQ_URL = process.env.LOCAL_RABBITMQ_URL || "amqp://localhost:5672";
+const COLLAB_SERVICE_URL = process.env.COLLAB_SERVICE_URL || "http://localhost:8003";
 
 function arrayEquals(a, b) {
   return Array.isArray(a) &&
@@ -28,7 +29,7 @@ let unmatchedUsers = [];
 
 // Function to set up RabbitMQ consumer
 const setupConsumer = () => {
-  amqp.connect(CLOUDAMQP_URL, (err, conn) => {
+  amqp.connect(LOCAL_RABBITMQ_URL, (err, conn) => {
     if (err) throw err;
 
     conn.createChannel((err, ch) => {
@@ -41,7 +42,7 @@ const setupConsumer = () => {
         const userRequest = JSON.parse(msg.content.toString());
         console.log('Received user request:', userRequest);
 
-        if (userRequest.action === 'cancel') {
+        if (userRequest.status === 'cancel') {
           // Handle cancel request
           const userIndex = unmatchedUsers.findIndex(u => u.userId === userRequest.userId);
           if (userIndex !== -1) {
@@ -53,6 +54,7 @@ const setupConsumer = () => {
           } else {
               console.log(`No unmatched request found for user ${userRequest.userId}`);
           }
+
     sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
     console.log(`Cancelled matching request for user ${userRequest.userId}`);
         } else if (userRequest.status === 'askcopilot') {
@@ -95,9 +97,9 @@ const setupConsumer = () => {
                 difficulty: userRequest.difficulty,
                 category: userRequest.category
               });
-
+              console.log(response.data);
               const { roomId } = response.data;
-
+  
               // Notify both users
               [userRequest, match].forEach(user => {
                 sendWsMessage(user.userId, {
@@ -108,10 +110,10 @@ const setupConsumer = () => {
                   category: userRequest.category
                 });
               });
-
+  
               // Clear the timeouts for both users
               clearTimeout(match.timeoutId);
-
+  
               // Remove matched user from unmatchedUsers
               unmatchedUsers = unmatchedUsers.filter(u => u.userId !== match.userId);
             } catch (error) {

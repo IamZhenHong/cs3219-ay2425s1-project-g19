@@ -5,32 +5,31 @@ const { RoomManager } = require("./roomManager");
 // Instantiate the RoomManager
 const roomManager = new RoomManager();
 
-// Store clients and rooms
 const wsClients = new Map();
-const rooms = new Map();
 
 const setupWebSocket = (server) => {
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({ server, path: '/ws-collaboration' });
 
-  wss.on('connection', (ws) => {
-    console.log('New client connected to collaboration service');
+  wss.on("connection", (ws) => {
+    console.log("New client connected to collaboration service");
 
-    ws.on('message', (message) => {
+    ws.on("message", (message) => {
       try {
         const data = JSON.parse(message);
         handleMessage(ws, data);
       } catch (error) {
-        console.error('Error handling WebSocket message:', error);
+        console.error("Error handling WebSocket message:", error);
       }
     });
 
-    ws.on('close', () => {
+    ws.on("close", () => {
+      console.log("User disconnected");
       handleDisconnect(ws);
     });
   });
 
   return wss;
-}
+};
 
 function handleMessage(ws, data) {
   switch (data.type) {
@@ -70,6 +69,14 @@ function handleMessage(ws, data) {
       console.log("Unknown message type:", data.type);
   }
 }
+
+// function handleConnect(ws, data) {
+//   console.log('handleConnect:', data);
+//   wsClients.set(data.userId, ws);
+//   ws.userId = data.userId;
+// }
+
+// Function to handle room creation
 
 function handleCreateRoom(ws, data) {
   const { roomId, users, difficulty, category } = data;
@@ -288,7 +295,8 @@ const sendWsMessage = (userId, message) => {
 
 
 module.exports = {
+
   setupWebSocket, sendWsMessage, broadcastToRoom
 };
 
-//ws.js
+

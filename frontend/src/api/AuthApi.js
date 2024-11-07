@@ -1,12 +1,12 @@
 import axios from "axios";
 
 // Define the base URL for your API
-const API_URL = "http://localhost:8000/auth";
+const AUTH_API_URL = process.env.REACT_APP_AUTH_API_URL || "http://localhost:8000/auth";
 
 // Create a function to log in
 export const login = async (data) => {
     try {
-      const response = await axios.post(`${API_URL}/login`, data);
+      const response = await axios.post(`${AUTH_API_URL}/login`, data);
       return response.data; // Return response if needed
     } catch (error) {
       if (error.response) {

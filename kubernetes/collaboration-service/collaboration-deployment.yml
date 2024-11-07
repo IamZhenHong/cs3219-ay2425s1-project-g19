@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: collaboration-service
+  labels:
+    app: collaboration-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: collaboration-service
+  template:
+    metadata:
+      labels:
+        app: collaboration-service
+    spec:
+      containers:
+        - name: collaboration-service
+          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/collaboration-service:v6
+          ports:
+            - containerPort: 8003
+          env:
+            - name: PORT
+              value: "8003"
+      restartPolicy: Always
