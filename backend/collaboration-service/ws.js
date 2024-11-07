@@ -156,8 +156,18 @@ function broadcastToRoom(roomId, message, excludeUserId = null) {
   }
 }
 
+// Helper function to send a message to a specific user by userId
+const sendWsMessage = (userId, message) => {
+  const ws = wsClients.get(userId);
+  if (ws) {
+    ws.send(JSON.stringify(message));
+    console.log(`Sent WebSocket message to user ${userId}:`, message);
+  } else {
+    console.log(`No WebSocket connection found for user ${userId}`);
+  }
+};
+
+
 module.exports = {
-  setupWebSocket,
-  rooms,
-  broadcastToRoom
+  setupWebSocket, sendWsMessage, broadcastToRoom
 };

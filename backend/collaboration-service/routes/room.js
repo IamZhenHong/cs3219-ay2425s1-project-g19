@@ -7,6 +7,12 @@ const {
   leaveRoom
 } = require('../controllers/roomControllers');
 
+const {
+  askCopilot
+} = require('../controllers/copilotControllers');
+
+router.post('/', askCopilot);
+
 router.post('/create', createRoom);
 router.get('/:roomId', getRoomInfo);
 router.post('/:roomId/join', joinRoom);
