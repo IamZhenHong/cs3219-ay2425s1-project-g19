@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: collaboration-service
-          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/collaboration-service:v5
+          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/collaboration-service:v6
           ports:
             - containerPort: 8003
           env:

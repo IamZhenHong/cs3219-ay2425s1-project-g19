@@ -13,7 +13,7 @@ const languages = [
   { label: "HTML", value: "html" },
 ];
 
-const COLLABORATION_WS_URL = process.env.REACT_APP_COLLABORATION_WS_URL || "ws://localhost:8003";
+const COLLABORATION_WS_URL = process.env.REACT_APP_COLLABORATION_WS_URL || "ws://localhost:8003/ws-collaboration";
 
 const CollaborationRoom = () => {
   const [status, setStatus] = useState("Connecting...");

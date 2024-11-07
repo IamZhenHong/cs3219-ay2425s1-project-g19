@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: matching-service
-          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/matching-service:v4
+          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/matching-service:v8
           ports:
             - containerPort: 8002
           env:

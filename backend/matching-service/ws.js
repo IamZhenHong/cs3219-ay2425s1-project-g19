@@ -14,7 +14,10 @@ const setupWebSocket = (server) => {
     ws.on('message', (message) => {
       const { userId } = JSON.parse(message);
       wsClients.set(userId, ws);
+      ws.userId = userId;
       console.log(`WebSocket connection stored for user ${userId}`);
+
+      console.log('Current connections:', Array.from(wsClients.keys()));
     });
 
     // Clean up when the connection is closed

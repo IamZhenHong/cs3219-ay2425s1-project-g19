@@ -6,7 +6,7 @@ import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 
 const timeout = 30; // Timeout value in seconds
-const MATCHING_WS_URL = process.env.REACT_APP_MATCHING_WS_URL || "ws://localhost:8002";
+const MATCHING_WS_URL = process.env.REACT_APP_MATCHING_WS_URL || "ws://localhost:8002/ws-matching";
 
 const MatchingPage = () => {
   const [status, setStatus] = useState("");

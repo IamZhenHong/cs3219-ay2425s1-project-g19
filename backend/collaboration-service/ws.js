@@ -79,21 +79,6 @@ function handleMessage(ws, data) {
 // Function to handle room creation
 function handleCreateRoom(ws, data) {
   const { roomId, users, difficulty, category } = data;
-  // // Check if room already exists
-  // const room = roomManager.getRoom(roomId);
-  // if (room) {
-  //   ws.send(JSON.stringify({
-  //     type: 'CREATE_FAILURE',
-  //     message: `Room ${roomId} already exists`
-  //   }));
-  //   return;
-  // }
-  // for (const user of users) {
-  //   wsClients.set(user, ws);
-  //   ws.userId = data.users.use;
-  // }
-
-  // console.log(data.users);
 
   wsClients.set(users[0], ws);
   ws.userId = users[0];
@@ -127,6 +112,11 @@ function handleSendMessage(ws, data) {
 
 function handleJoinRoom(ws, data) {
   const { roomId, userId } = data;
+
+  // Store the connection for the joining user
+  wsClients.set(userId, ws);
+  ws.userId = userId;
+
   const room = roomManager.getRoom(roomId);
 
   if (room) {
