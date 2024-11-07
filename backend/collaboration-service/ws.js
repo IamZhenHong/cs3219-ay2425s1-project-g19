@@ -77,6 +77,7 @@ function handleMessage(ws, data) {
 // }
 
 // Function to handle room creation
+
 function handleCreateRoom(ws, data) {
   const { roomId, users, difficulty, category } = data;
 
@@ -281,6 +282,21 @@ function broadcastToRoom(roomId, message, excludeUserId = null) {
   }
 }
 
-module.exports = {
-  setupWebSocket,
+// Helper function to send a message to a specific user by userId
+const sendWsMessage = (userId, message) => {
+  const ws = wsClients.get(userId);
+  if (ws) {
+    ws.send(JSON.stringify(message));
+    console.log(`Sent WebSocket message to user ${userId}:`, message);
+  } else {
+    console.log(`No WebSocket connection found for user ${userId}`);
+  }
 };
+
+
+module.exports = {
+
+  setupWebSocket, sendWsMessage, broadcastToRoom
+};
+
+

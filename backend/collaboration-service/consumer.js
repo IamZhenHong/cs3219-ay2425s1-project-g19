@@ -1,15 +1,13 @@
 const { Mistral } = require('@mistralai/mistralai');
 
-
 const amqp = require('amqplib/callback_api');
-const { sendWsMessage } = require('./ws');
+const { sendWsMessage, broadcastToRoom } = require('./ws');
 const axios = require('axios');
 const dotenv = require('dotenv');
 dotenv.config();
 
 const CLOUDAMQP_URL = process.env.CLOUDAMQP_URL;
-const LOCAL_RABBITMQ_URL = process.env.LOCAL_RABBITMQ_URL || "amqp://localhost:5672";
-const COLLAB_SERVICE_URL = process.env.COLLAB_SERVICE_URL || "http://localhost:8003";
+const COLLAB_SERVICE_URL = "http://localhost:8003";
 
 function arrayEquals(a, b) {
   return Array.isArray(a) &&
@@ -29,19 +27,22 @@ let unmatchedUsers = [];
 
 // Function to set up RabbitMQ consumer
 const setupConsumer = () => {
-  amqp.connect(LOCAL_RABBITMQ_URL, (err, conn) => {
-    if (err) throw err;
+  amqp.connect(CLOUDAMQP_URL, (err, conn) => {
+    if (err) {
+      console.error('Connection error in consumer.js:', err);
+      return;
+    }
 
     conn.createChannel((err, ch) => {
       if (err) throw err;
-      const queue = 'matching_queue';
+      const queue = 'collab_queue';
       ch.assertQueue(queue, { durable: false });
 
-      console.log('Listening for messages in RabbitMQ queue...');
+      console.log('Listening for messages in RabbitMQ queue for collab...');
       ch.consume(queue, async (msg) => {
         const userRequest = JSON.parse(msg.content.toString());
         console.log('Received user request:', userRequest);
-
+        console.log('User request type:', userRequest.type);
         if (userRequest.status === 'cancel') {
           // Handle cancel request
           const userIndex = unmatchedUsers.findIndex(u => u.userId === userRequest.userId);
@@ -54,33 +55,30 @@ const setupConsumer = () => {
           } else {
               console.log(`No unmatched request found for user ${userRequest.userId}`);
           }
-
     sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
     console.log(`Cancelled matching request for user ${userRequest.userId}`);
-        } else if (userRequest.status === 'askcopilot') {
-          // Handle askcopilot request: Call LLM API with the data
-          const apiKey = process.env.Mistral_API_KEY;
-          const client = new Mistral ({apiKey: apiKey});
-          const prompt = userRequest.data.prompt;
-          const code = userRequest.data.code;
-          model = 'mistral-large-latest'
-          chat_response = await client.chat.complete(
-
-            model=model,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are an experienced developer. Please provide detailed and accurate responses."
-                },
-                {
-                    "role": "user",
-                    "content": "Prompt: ${prompt}\nCode: ${code}"
-                }
-            ]
-        )
-        
-        sendWsMessage(userRequest.userId, { status: 'askcopilot', response: chat_response });
-        } else {
+        } else if (userRequest.type === 'ASK_COPILOT') {
+          // Function to make the API call with retry logic
+      
+          try {
+              const apiKey = process.env.MISTRAL_API_KEY;
+              const client = new Mistral({ apiKey: apiKey });
+              prompt = userRequest.prompt;
+              currentCode = userRequest.code;
+              
+              const chatResponse = await client.chat.complete({
+                model: 'mistral-large-latest',
+                messages: [{role: 'user', content: currentCode + '\n' + prompt}],
+              });
+              console.log('Asking Copilot:', chatResponse);
+              
+              broadcastToRoom(userRequest.roomId, { type: 'ASK_COPILOT', response: chatResponse.choices[0].message.content });
+          } catch (error) {
+              console.error("Failed to fetch chat response:", error);
+              broadcastToRoom(userRequest.roomId, { type: 'ASK_COPILOT', response: "Error fetching response from assistant." });
+          }
+      }
+      else {
           // Handle match request
           const match = unmatchedUsers.find(u => 
             checkSubset(u.category, userRequest.category) || 
