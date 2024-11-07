@@ -179,15 +179,17 @@ const formatUserResponse = (user) => {
     email: user.email,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
+    sessionHistory: user.sessionHistory
   };
 }
 
 const addSessionToUser = async (req, res) => {
-  const { userId } = req.params; // Extract userId from route params
-  const sessionData = req.body; // Get session data from request body
+  const userId = req.params.id; // Extract userId from route params
+  const sessionData = req.params.sessionData; // Get session data from request body
 
   try {
-    const updatedUser = await addNewSession(userId, sessionData); // Update session in repository
+    const updatedUser = await _addNewSession(userId, sessionData);
+    console.log("results of addnewSession" + updateUser) // Update session in repository
     if (updatedUser) {
       return res.status(200).json({ message: "Session added successfully", data: updatedUser });
     } else {

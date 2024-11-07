@@ -2,7 +2,7 @@ import React from "react";
 import defaultBackground from "../../assets/test.jpg"
 import defaultProfilePicture from "../../assets/default-profile-picture.jpg"
 
-const HistoryCard = ({ topic, difficulty, questionImage, date, userImage }) => {
+const HistoryCard = ({ category, difficulty, questionImage, startDate, userImage }) => {
   return (
     <div className="relative flex items-center bg-gray-800 rounded-lg p-4 my-2">
       {/* Background Image */}
@@ -16,13 +16,13 @@ const HistoryCard = ({ topic, difficulty, questionImage, date, userImage }) => {
       >
         {/* Topic and Difficulty */}
         <div className="flex flex-col">
-          <h2 className="text-2xl font-bold">{topic || "-"}</h2>
+          <h2 className="text-2xl font-bold">{category || "-"}</h2>
           <p className="text-lg">{difficulty || "-"}</p>
         </div>
         
         {/* Date */}
         <div className="absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2 text-md text-center">
-          <p>Date: {date.toLocaleDateString() || "-"}</p>
+          <p>Date: {startDate ? new Date(startDate).toLocaleDateString() : "-"}</p>
           {/* Score field, if you need it later */}
           {/* <p>Score: {score}</p> */}
         </div>

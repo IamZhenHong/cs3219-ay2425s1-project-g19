@@ -33,9 +33,9 @@ const MatchForm = ({ onSubmit }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
-        class="flex h-screen"
+        className="flex h-screen"
       >
-        <div class="flex flex-col w-1/2 justify-center items-start bg-gray-800 bg-opacity-0 pl-16 text-white">
+        <div className="flex flex-col w-1/2 justify-center items-start bg-gray-800 bg-opacity-0 pl-16 text-white">
           <p className="text-9xl text-white font-bold ">CONNECT</p>
           <p className="text-9xl text-blue-200 font-bold ">CODE</p>
           <p className="text-9xl text-blue-400 font-bold ">CREATE</p>
@@ -44,7 +44,7 @@ const MatchForm = ({ onSubmit }) => {
           </p>
         </div>
 
-        <div class="flex flex-col justify-center items-center w-1/2 bg-opacity-0 p-8 text-gray-800">
+        <div className="flex flex-col justify-center items-center w-1/2 bg-opacity-0 p-8 text-gray-800">
           <div className="flex flex-col justify-center w-3/4 items-center bg-blue-200 bg-opacity-50 backdrop-blur-md p-8 text-gray-800 rounded-4 space-y-4"> {/* New container for layout */}
             {/* Right-aligned Category */}
             <div className="flex flex-col justify-center text-white p-2 w-full">
