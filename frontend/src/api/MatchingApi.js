@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8002/matching";
+const MATCHING_API_URL = process.env.REACT_APP_MATCHING_API_URL || "http://localhost:8002/matching";
 
 export const getMatch = async (data) => {
   try {
-    const response = await axios.post(API_URL, data);
+    const response = await axios.post(MATCHING_API_URL, data);
     if (response.status === 200) {
       return response.data;
     } else {
@@ -22,9 +22,9 @@ export const getMatch = async (data) => {
 
 // Function to cancel a match
 export const cancelMatch = async (data) => {
-  const CANCEL_API_URL = `${API_URL}/cancel`; // Define the cancel endpoint
+  const CANCEL_MATCHING_API_URL = `${MATCHING_API_URL}/cancel`; // Define the cancel endpoint
   try {
-    const response = await axios.post(CANCEL_API_URL,  data );
+    const response = await axios.post(CANCEL_MATCHING_API_URL,  data );
     if (response.status === 200) {
       return response.data; // Return the response data if the cancellation is successful
     } else {

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/frontend:v4
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REACT_APP_AUTH_API_URL
+              value: "http://34.42.134.111/auth"
+            - name: REACT_APP_USER_API_URL
+              value: "http://34.42.134.111/users"
+            - name: REACT_APP_QUESTIONS_API_URL
+              value: "http://34.42.134.111/questions"
+            - name: REACT_APP_MATCHING_API_URL
+              value: "http://34.42.134.111/matching"
+            - name: REACT_APP_MATCHING_WS_URL
+              value: "ws://34.42.134.111/ws-matching"
+            - name: REACT_APP_COLLABORATION_WS_URL
+              value: "ws://34.42.134.111/ws-collaboration"
+      restartPolicy: Always

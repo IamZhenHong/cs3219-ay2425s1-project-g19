@@ -8,7 +8,7 @@ const roomManager = new RoomManager();
 const wsClients = new Map();
 
 const setupWebSocket = (server) => {
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({ server, path: '/ws-collaboration' });
 
   wss.on("connection", (ws) => {
     console.log("New client connected to collaboration service");
@@ -77,24 +77,9 @@ function handleMessage(ws, data) {
 // }
 
 // Function to handle room creation
+
 function handleCreateRoom(ws, data) {
   const { roomId, users, difficulty, category } = data;
-  // // Check if room already exists
-  // const room = roomManager.getRoom(roomId);
-  // if (room) {
-  //   ws.send(JSON.stringify({
-  //     type: 'CREATE_FAILURE',
-  //     message: `Room ${roomId} already exists`
-  //   }));
-  //   return;
-  // }
-  // for (const user of users) {
-  //   wsClients.set(user, ws);
-  //   ws.userId = data.users.use;
-  // }
-  wsClients.set(data.users[0], ws);
-  ws.userId = data.users[0];
-  // console.log(data.users);
 
   wsClients.set(users[0], ws);
   ws.userId = users[0];
@@ -128,6 +113,11 @@ function handleSendMessage(ws, data) {
 
 async function handleJoinRoom(ws, data) {
   const { roomId, userId } = data;
+
+  // Store the connection for the joining user
+  wsClients.set(userId, ws);
+  ws.userId = userId;
+
   const room = roomManager.getRoom(roomId);
 
   if (room) {
@@ -292,6 +282,21 @@ function broadcastToRoom(roomId, message, excludeUserId = null) {
   }
 }
 
-module.exports = {
-  setupWebSocket,
+// Helper function to send a message to a specific user by userId
+const sendWsMessage = (userId, message) => {
+  const ws = wsClients.get(userId);
+  if (ws) {
+    ws.send(JSON.stringify(message));
+    console.log(`Sent WebSocket message to user ${userId}:`, message);
+  } else {
+    console.log(`No WebSocket connection found for user ${userId}`);
+  }
 };
+
+
+module.exports = {
+
+  setupWebSocket, sendWsMessage, broadcastToRoom
+};
+
+

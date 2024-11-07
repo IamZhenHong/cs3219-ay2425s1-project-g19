@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: questions-service
+  labels:
+    app: questions-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: questions-service
+  template:
+    metadata:
+      labels:
+        app: questions-service
+    spec:
+      containers:
+        - name: questions-service
+          image: us-central1-docker.pkg.dev/eastern-shell-439115-p7/peerprep-repo/questions-service:v2
+          ports:
+            - containerPort: 8001
+          env:
+            - name: PORT
+              value: "8001"
+            - name: USER_SERVICE_URL
+              value: "http://user-service:8000"
+            - name: MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: peerprep-secrets
+                  key: MONGO_URL
+      restartPolicy: Always
