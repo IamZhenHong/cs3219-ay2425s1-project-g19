@@ -5,7 +5,7 @@ const wsClients = new Map();
 
 // Set up WebSocket server
 const setupWebSocket = (server) => {
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({ server, path: '/ws-matching' });
 
   wss.on('connection', (ws) => {
     console.log('New WebSocket connection established');

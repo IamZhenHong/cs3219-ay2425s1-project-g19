@@ -8,7 +8,7 @@ const roomManager = new RoomManager();
 const wsClients = new Map();
 
 const setupWebSocket = (server) => {
-  const wss = new WebSocket.Server({ server });
+  const wss = new WebSocket.Server({ server, path: '/ws-collaboration' });
 
   wss.on("connection", (ws) => {
     console.log("New client connected to collaboration service");
@@ -92,8 +92,7 @@ function handleCreateRoom(ws, data) {
   //   wsClients.set(user, ws);
   //   ws.userId = data.users.use;
   // }
-  wsClients.set(data.users[0], ws);
-  ws.userId = data.users[0];
+
   // console.log(data.users);
 
   wsClients.set(users[0], ws);

@@ -6,6 +6,7 @@ import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 
 const timeout = 30; // Timeout value in seconds
+const MATCHING_WS_URL = process.env.REACT_APP_MATCHING_WS_URL || "ws://localhost:8002";
 
 const MatchingPage = () => {
   const [status, setStatus] = useState("");
@@ -88,7 +89,7 @@ const MatchingPage = () => {
         const res = await getMatch(data);
         await closeWebSocket();
 
-        const websocket = new WebSocket("ws://localhost:8002");
+        const websocket = new WebSocket(MATCHING_WS_URL);
         websocket.onopen = () => {
           websocket.send(JSON.stringify({ userId: res.userId }));
         };
