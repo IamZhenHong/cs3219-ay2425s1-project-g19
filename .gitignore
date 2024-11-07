@@ -1,3 +1,4 @@
 .env
 .history
 kubernetes/secrets.env
+node_modules
