@@ -1,7 +1,8 @@
 import axios from "axios";
 
 // Define the base URL for your API
-const USER_API_URL = process.env.REACT_APP_USER_API_URL || "http://localhost:8000/users";
+const USER_API_URL =
+  process.env.REACT_APP_USER_API_URL || "http://localhost:8000/users";
 
 // Create a function to create account
 export const createAccount = async (data) => {
@@ -121,11 +122,15 @@ export const updateUserPrivilege = async (id, data) => {
       throw new Error("No token found, please log in.");
     }
 
-    const response = await axios.patch(`${USER_API_URL}/id/${id}/privilege`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Include the token for verification
-      },
-    });
+    const response = await axios.patch(
+      `${USER_API_URL}/id/${id}/privilege`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token for verification
+        },
+      }
+    );
 
     if (response.status === 200) {
       return response.data;
@@ -174,7 +179,10 @@ export const deleteUser = async (id) => {
 
 export const addSessionToUser = async (userId, sessionData) => {
   try {
-    const response = await axios.post(`${API_URL}/${userId}/sessionHistory`, sessionData);
+    const response = await axios.post(
+      `${USER_API_URL}/${userId}/sessionHistory`,
+      sessionData
+    );
     if (response.status === 200) {
       return response.data;
     } else {
