@@ -12,14 +12,14 @@ const COLLAB_SERVICE_URL = process.env.COLLAB_SERVICE_URL || "http://localhost:8
 
 function arrayEquals(a, b) {
   return Array.isArray(a) &&
-      Array.isArray(b) &&
-      a.length === b.length &&
-      a.every((val, index) => val === b[index]);
+    Array.isArray(b) &&
+    a.length === b.length &&
+    a.every((val, index) => val === b[index]);
 }
 
 function checkSubset(parentArray, subsetArray) {
   return subsetArray.every((el) => {
-      return parentArray.includes(el)
+    return parentArray.includes(el)
   });
 }
 
@@ -48,41 +48,41 @@ const setupConsumer = () => {
           // Handle cancel request
           const userIndex = unmatchedUsers.findIndex(u => u.userId === userRequest.userId);
           if (userIndex !== -1) {
-              console.log(`Cancelling request for user ${userRequest.userId}`);
-              clearTimeout(unmatchedUsers[userIndex].timeoutId); // Clear any pending timeout
-              unmatchedUsers.splice(userIndex, 1); // Remove user from unmatched list
-              sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
-              console.log(`Cancelled matching request for user ${userRequest.userId}`);
+            console.log(`Cancelling request for user ${userRequest.userId}`);
+            clearTimeout(unmatchedUsers[userIndex].timeoutId); // Clear any pending timeout
+            unmatchedUsers.splice(userIndex, 1); // Remove user from unmatched list
+            sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
+            console.log(`Cancelled matching request for user ${userRequest.userId}`);
           } else {
-              console.log(`No unmatched request found for user ${userRequest.userId}`);
+            console.log(`No unmatched request found for user ${userRequest.userId}`);
           }
-    sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
-    console.log(`Cancelled matching request for user ${userRequest.userId}`);
+          sendWsMessage(userRequest.userId, { status: 'CANCELLED' });
+          console.log(`Cancelled matching request for user ${userRequest.userId}`);
         } else if (userRequest.type === 'ASK_COPILOT') {
           // Function to make the API call with retry logic
-      
+
           try {
-              const apiKey = process.env.MISTRAL_API_KEY;
-              const client = new Mistral({ apiKey: apiKey });
-              prompt = userRequest.prompt;
-              currentCode = userRequest.code;
-              
-              const chatResponse = await client.chat.complete({
-                model: 'mistral-large-latest',
-                messages: [{role: 'user', content: currentCode + '\n' + prompt}],
-              });
-              console.log('Asking Copilot:', chatResponse);
-              
-              broadcastToRoom(userRequest.roomId, { type: 'ASK_COPILOT', response: chatResponse.choices[0].message.content });
+            const apiKey = process.env.MISTRAL_API_KEY;
+            const client = new Mistral({ apiKey: apiKey });
+            prompt = userRequest.prompt;
+            currentCode = userRequest.code;
+
+            const chatResponse = await client.chat.complete({
+              model: 'mistral-large-latest',
+              messages: [{ role: 'user', content: currentCode + '\n' + prompt }],
+            });
+            console.log('Asking Copilot:', chatResponse);
+
+            broadcastToRoom(userRequest.roomId, { type: 'ASK_COPILOT', response: chatResponse.choices[0].message.content });
           } catch (error) {
-              console.error("Failed to fetch chat response:", error);
-              broadcastToRoom(userRequest.roomId, { type: 'ASK_COPILOT', response: "Error fetching response from assistant." });
+            console.error("Failed to fetch chat response:", error);
+            broadcastToRoom(userRequest.roomId, { type: 'ASK_COPILOT', response: "Error fetching response from assistant." });
           }
-      }
-      else {
+        }
+        else {
           // Handle match request
-          const match = unmatchedUsers.find(u => 
-            checkSubset(u.category, userRequest.category) || 
+          const match = unmatchedUsers.find(u =>
+            checkSubset(u.category, userRequest.category) ||
             checkSubset(userRequest.category, u.category)
           ) || unmatchedUsers.find(u => u.difficulty === userRequest.difficulty);
 
@@ -98,7 +98,7 @@ const setupConsumer = () => {
               });
               console.log(response.data);
               const { roomId } = response.data;
-  
+
               // Notify both users
               [userRequest, match].forEach(user => {
                 sendWsMessage(user.userId, {
@@ -109,10 +109,10 @@ const setupConsumer = () => {
                   category: userRequest.category
                 });
               });
-  
+
               // Clear the timeouts for both users
               clearTimeout(match.timeoutId);
-  
+
               // Remove matched user from unmatchedUsers
               unmatchedUsers = unmatchedUsers.filter(u => u.userId !== match.userId);
             } catch (error) {
