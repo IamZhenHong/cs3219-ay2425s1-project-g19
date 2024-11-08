@@ -229,7 +229,7 @@ const CollaborationRoom = () => {
 
     try {
       const response = await askCopilot(promptData);
-      setCopilotResponse(response);
+      // setCopilotResponse(response);
     } catch (error) {
       console.error("Error calling Copilot API:", error);
       setCopilotResponse("Error: " + error);
