@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import MatchForm from "../../components/student/MatchForm";
 import { getMatch, cancelMatch } from "../../api/MatchingApi";
 import { getUserByEmail } from "../../api/UserApi";
+import { getQuestionByCriteria } from "../../api/QuestionsApi";
 import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/utils/Loader";
@@ -19,7 +20,27 @@ const MatchingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { userEmail } = useContext(UserContext);
+  
+  const [question, setQuestion] = useState(null);
+  const [loading, setLoading] = useState(true); // Track loading state
+  const [error, setError] = useState(null); 
+
   const navigate = useNavigate();
+
+  // Fetch question based on difficulty and category
+  const fetchQuestion = useCallback(async (difficulty, category) => {
+    try {
+      setLoading(true);
+      const response = await getQuestionByCriteria(difficulty, category);
+      setQuestion(response.data); // Store in state for other uses
+      setLoading(false);
+      return response.data; // Return the fetched question
+    } catch (err) {
+      setError("Failed to load the question.");
+      setLoading(false);
+      return null; // Return null in case of error
+    }
+  }, []);
 
   useEffect(() => {
     if (userEmail) {
@@ -63,7 +84,25 @@ const MatchingPage = () => {
         setStatus("User information not loaded. Please try again.");
         return;
       }
+  
+      // // Convert the category array into a comma-separated string
+      // const categoryString = Array.isArray(submission.category) 
+      //   ? submission.category.join(',') 
+      //   : submission.category;  // Handle case if category is already a string
+      // console.log(categoryString);
+      // console.log(submission.difficulty);
+      
+      // // Fetch the question and wait for the response
+      // const fetchedQuestion = await fetchQuestion(submission.difficulty, categoryString);
 
+      // // Check if a question exists
+      // if (!fetchedQuestion) {
+      //   // If no question, show an alert or dialog box
+      //   alert("No question found for the selected criteria. Please change your choices.");
+      //   setStatus("No question available. Please change your criteria.");
+      //   return;
+      // }
+  
       setStatus("Finding a match...");
       setCountdown(timeout);
       setIsMatching(true);
@@ -82,14 +121,14 @@ const MatchingPage = () => {
           }
         });
       };
-
+  
       try {
         const data = {
           userId: currentUserInfo.id,
-          category: submission.category,
+          category: submission.category,  // Send the converted string
           difficulty: submission.difficulty,
         };
-
+  
         const res = await getMatch(data);
         await closeWebSocket();
 
@@ -97,21 +136,22 @@ const MatchingPage = () => {
         websocket.onopen = () => {
           websocket.send(JSON.stringify({ userId: res.userId }));
         };
-
+  
         websocket.onmessage = (message) => {
           const result = JSON.parse(message.data);
           if (result.status === "MATCH_FOUND") {
             setStatus(
               `Match found! You are paired with user ${result.matchedUserId}`
             );
-            // Navigate to collaboration room
+            // Navigate to collaboration room, passing the question and user information
             navigate(`/room/${result.roomId}`, {
               state: {
                 difficulty: submission.difficulty,
-                category: submission.category,
+                category: submission.category,  // Pass the string representation of categories
                 userId: currentUserInfo.id,
-                matchedUserId: result.matchedUserId
-              }
+                matchedUserId: result.matchedUserId,
+                // question: fetchedQuestion, // Pass the selected question directly from the response
+              },
             });
             setIsMatching(false);
           } else if (result.status === "timeout") {
@@ -122,24 +162,25 @@ const MatchingPage = () => {
             setIsMatching(false);
           }
         };
-
+  
         websocket.onerror = (error) => {
           setStatus("Error occurred. Please try again.");
           setIsMatching(false);
         };
-
+  
         websocket.onclose = () => {
           setWs(null);
         };
-
+  
         setWs(websocket);
       } catch (err) {
         setStatus("Error sending request. Please try again.");
         setIsMatching(false);
       }
     },
-    [currentUserInfo, ws, navigate]
+    [currentUserInfo, ws, navigate, fetchQuestion]
   );
+  
 
   const handleCancelRequest = async () => {
     const data = { status: "cancel", userId: currentUserInfo.id };

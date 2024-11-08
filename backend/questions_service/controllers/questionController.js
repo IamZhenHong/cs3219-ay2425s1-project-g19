@@ -19,6 +19,13 @@ const getQuestion = async (req, res) => {
   res.json(res.question);
 };
 
+// @desc    Get a question by criteria
+// @route   GET /questions/:id
+// @access  Public
+const getOneQuestionByCriteria = async (req, res) => {
+  res.json(res.question);
+};
+
 // @desc    Create a question
 // @route   POST /questions
 // @access  Public
@@ -85,4 +92,5 @@ module.exports = {
   createQuestion,
   updateQuestion,
   deleteQuestion,
+  getOneQuestionByCriteria
 };

@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const { v4: uuidv4 } = require("uuid");
 const { RoomManager } = require("./roomManager");
+const { getQuestionByCriteria } = require("./api/questionApi");
 
 // Instantiate the RoomManager
 const roomManager = new RoomManager();
@@ -53,6 +54,10 @@ function handleMessage(ws, data) {
       handleCodeChange(data);
       break;
 
+    case "SET_QUESTION":
+      handleSetQuestion(ws, data);
+      break;
+
     case "LANGUAGE_CHANGE":
       handleLanguageChange(data);
       break;
@@ -77,41 +82,88 @@ function handleMessage(ws, data) {
 // }
 
 // Function to handle room creation
-
-function handleCreateRoom(ws, data) {
+async function handleCreateRoom(ws, data) { 
   const { roomId, users, difficulty, category } = data;
+
+  wsClients.set(data.users[0], ws);
+  ws.userId = data.users[0];
+
 
   wsClients.set(users[0], ws);
   ws.userId = users[0];
 
-  // Create and store a new room on the server
-  const newRoom = roomManager.createRoom(roomId, users, difficulty, category);
+  try {
+    const categoryString = Array.isArray(category) 
+        ? category.join(',') 
+        : category;
+    const questions = await getQuestionByCriteria(difficulty, categoryString);
 
-  // Send confirmation to the client that room was created successfully
-  ws.send(
-    JSON.stringify({
-      type: "CREATE_SUCCESS",
-      message: `Room ${roomId} created successfully`,
-      room: newRoom.toJSON(),
-    })
-  );
+    const newRoom = roomManager.createRoom(roomId, users, difficulty, category, questions);
+
+    // Send confirmation to the client that room was created successfully
+    ws.send(
+      JSON.stringify({
+        type: "CREATE_SUCCESS",
+        message: `Room ${roomId} created successfully`,
+        room: newRoom.toJSON(),
+        questions: newRoom.questions
+      })
+    );
+  } catch (error) {
+    console.error("Error creating room:", error);
+    ws.send(
+      JSON.stringify({
+        type: "CREATE_FAILURE",
+        message: "Failed to create the room. Please try again.",
+      })
+    );
+  }
 }
 
 function handleSendMessage(ws, data) {
   const { roomId, userId, message } = data;
   const room = roomManager.getRoom(roomId);
   if (room) {
-    broadcastToRoom(roomId, {
+    broadcastToRoom(
+      roomId, 
+      {
       type: "MESSAGE",
       userId,
       message,
-    });
+      }
+    );
   } else {
     console.error(`Room ${roomId} not found for user ${userId}`);
   }
 }
 
-async function handleJoinRoom(ws, data) {
+function handleSetQuestion(ws, data) {
+  const { roomId, randomNumber, userId } = data;
+  const room = roomManager.getRoom(roomId);
+
+  if (room) {
+    room.selectQuestion(randomNumber);
+    broadcastToRoom(
+      roomId,
+      {
+        type: "QUESTION_SET",
+        question: room.selectedQuestion,
+        userId
+      },
+      userId
+    );
+  } else {
+    console.error(`Room ${roomId} not found for user ${ws.userId}`);
+    ws.send(
+      JSON.stringify({
+        type: "SET_QUESTION_FAILURE",
+        message: `Room ${roomId} not found.`,
+      })
+    );
+  }
+}
+
+function handleJoinRoom(ws, data) {
   const { roomId, userId } = data;
 
   // Store the connection for the joining user

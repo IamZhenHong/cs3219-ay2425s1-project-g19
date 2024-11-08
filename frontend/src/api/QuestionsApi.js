@@ -83,6 +83,32 @@ export const getQuestion = async (id) => {
   }
 };
 
+export const getQuestionByCriteria = async (difficulty, categories) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("No token found, please log in.");
+    }
+    
+    const response = await axios.get(`${QUESTIONS_API_URL}/${difficulty}/${categories}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token for verification
+      },
+    });
+
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Fetch question failed, please try again.");
+    }
+  } catch (error) {
+    console.error("Error fetching question:", error);
+    throw error;
+  }
+};
+
+
 // Function to delete a specific question by ID
 export const deleteQuestion = async (id) => {
   try {
