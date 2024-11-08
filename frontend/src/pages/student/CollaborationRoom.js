@@ -5,6 +5,7 @@ import Editor, { useMonaco } from "@monaco-editor/react";
 import ChatHeader from "../../components/chat/ChatHeader.js";
 import Text from "../../components/chat/Text.js";
 import TextInput from "../../components/chat/TextInput.js";
+import { addSessionToUser } from "../../api/UserApi.js"
 
 const languages = [
   { label: "JavaScript", value: "javascript" },
@@ -75,6 +76,20 @@ const CollaborationRoom = () => {
             userId,
           })
         );
+
+        const sessionData = {
+          roomId: roomId,
+          difficulty: difficulty,
+          category: category.join(", "),
+          startDate: new Date(),
+        };
+        try {
+          addSessionToUser(userId, sessionData);
+          console.log("Successfully added sessionData to " + userId);
+        } catch (error) {
+          console.error("Failed to add sessionData to " + userId, error);
+        }
+
         if (result.questions) {
           const randomIndex = Math.floor(
             Math.random() * result.questions.length

@@ -73,6 +73,20 @@ const deleteUserById = async (userId) => {
   return UserModel.findByIdAndDelete(userId);
 };
 
+const addNewSession = async (userId, sessionData) => {
+  try {
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId, // Ensure userId is treated as ObjectId
+      { $push: { sessionHistory: sessionData } }, // Add sessionData to sessionHistory array
+      { new: true } // Return the updated document
+    );
+    return updatedUser;
+  } catch (error) {
+    console.error("Error in addNewSession:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   connectToDB,
   createUser,
@@ -84,4 +98,5 @@ module.exports = {
   updateUserById,
   updateUserPrivilegeById,
   deleteUserById,
+  addNewSession
 };

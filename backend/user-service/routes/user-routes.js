@@ -7,6 +7,7 @@ const {
   getUserByEmail,
   updateUser,
   updateUserPrivilege,
+  addSessionToUser
 } = require("../controller/user-controller.js");
 const { verifyAccessToken, verifyIsAdmin, verifyIsOwnerOrAdmin, verifyIsOwnerOrAdminByEmail } = require("../middleware/basic-access-control.js");
 
@@ -19,5 +20,6 @@ router.get("/id/:id", verifyAccessToken, verifyIsOwnerOrAdmin, getUser);
 router.get("/email/:email", verifyAccessToken, verifyIsOwnerOrAdminByEmail, getUserByEmail);
 router.patch("/id/:id", verifyAccessToken, verifyIsOwnerOrAdmin, updateUser);
 router.delete("/id/:id", verifyAccessToken, verifyIsOwnerOrAdmin, deleteUser);
+router.post('/:id/sessionHistory', addSessionToUser);
 
 module.exports = router;

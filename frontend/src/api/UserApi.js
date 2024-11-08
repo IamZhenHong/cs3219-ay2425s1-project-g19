@@ -171,3 +171,21 @@ export const deleteUser = async (id) => {
     throw error;
   }
 };
+
+export const addSessionToUser = async (userId, sessionData) => {
+  try {
+    const response = await axios.post(`${API_URL}/${userId}/sessionHistory`, sessionData);
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to add session, please try again.");
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error("Error adding session:", error.response.data);
+      throw new Error(error.response.data.message);
+    }
+    console.error("Error adding session:", error);
+    throw error; // Re-throw the error to handle it in the component
+  }
+};

@@ -146,20 +146,19 @@
   justify-content: center;
   margin-top: 10px;
   padding: 5px 10px;
-  border-radius: 20px;
+  border-radius: 10px;
   color: white; /* Change text color for better contrast */
   margin-right: 5px; /* Space between tags */
 }
 
 .bg-grey {
-  background-color: grey; /* Grey background */
+  background-color: #0F0A3C; /* Grey background */
 }
 
 .remove-tag {
-  background: white; /* Remove button background */
+  background: transparent; /* Remove button background */
   border-radius: 40px;
   border: none; /* Remove button border */
-  color: rebeccapurple; /* Change button color to match the tag */
   cursor: pointer; /* Change cursor to pointer */
   margin-left: 5px; /* Space between text and button */
 }
@@ -179,4 +178,42 @@
 .indicator {
   color: white;
   opacity: 0;
+}
+
+.loader {
+  border-top-color: #3498db; /* You can adjust the color here */
+  animation: spinner 1.5s linear infinite;
+}
+
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tailwind + Custom Scrollbar for specific component */
+.custom-scrollbar {
+  @apply overflow-y-scroll;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 8px;
+  border: 3px solid #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
 }

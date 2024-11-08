@@ -5,6 +5,8 @@ import { getUserByEmail } from "../../api/UserApi";
 import { getQuestionByCriteria } from "../../api/QuestionsApi";
 import { UserContext } from "../../App";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/utils/Loader";
+import Modal from "../../components/student/Modal";
 
 const timeout = 30; // Timeout value in seconds
 const MATCHING_WS_URL = process.env.REACT_APP_MATCHING_WS_URL || "ws://localhost:8002/ws-matching";
@@ -16,6 +18,7 @@ const MatchingPage = () => {
   const [isMatching, setIsMatching] = useState(false);
   const [currentUserInfo, setCurrentUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { userEmail } = useContext(UserContext);
   
   const [question, setQuestion] = useState(null);
@@ -103,7 +106,8 @@ const MatchingPage = () => {
       setStatus("Finding a match...");
       setCountdown(timeout);
       setIsMatching(true);
-  
+      setIsModalOpen(true);
+
       const closeWebSocket = () => {
         return new Promise((resolve) => {
           if (ws) {
@@ -189,6 +193,7 @@ const MatchingPage = () => {
     }
     setIsMatching(false);
     setCountdown(timeout); // Reset countdown
+    setIsModalOpen(false); // Close the modal
   };
 
   useEffect(() => {
@@ -225,17 +230,28 @@ const MatchingPage = () => {
   }
 
   return (
-    <div className="Matching m-[1rem]">
-      <h1>Wanna practice coding with your peer?</h1>
+    <div className="Matching flex flex-col w-full h-full bg-[#000000]">
       <MatchForm onSubmit={handleMatchRequest} />
-      <div className="flex items-center justify-center">
-        <p>{status}</p>
-        {isMatching && <p>Time remaining: {countdown} seconds</p>}
-      </div>
-      {isMatching && (
-        <button onClick={handleCancelRequest} className="cancel-button">
-          Cancel Matching
-        </button>
+      {isModalOpen && (
+        <Modal open={isModalOpen} onClose={handleCancelRequest}>
+          <div className="flex flex-col items-center justify-center my-20">
+            {isMatching && <Loader/>}
+            
+            <p className="text-lg font-regular m-2">
+              {status}
+            </p>
+            
+            {isMatching && 
+              <p className="text-lg font-regular mb-2">
+                Time remaining: {countdown} seconds
+              </p>
+            }
+            
+            <button onClick={handleCancelRequest} className="btn btn-danger">
+              {isMatching ? "Cancel Matching" : "Exit"}
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );
