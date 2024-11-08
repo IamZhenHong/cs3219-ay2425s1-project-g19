@@ -1,12 +1,18 @@
 class Room {
-  constructor(id, users, difficulty, category) {
+  constructor(id, users, difficulty, category, questions) {
     this.id = id;
     this.users = users;
     this.difficulty = difficulty;
     this.category = category;
+    this.questions = questions;  // New property to store the question
+    this.selectedQuestion = null; 
     this.connectedUsers = new Set(users);
     this.code = '';
     this.createdAt = Date.now();
+  }
+
+  selectQuestion(index) {
+    this.selectedQuestion = this.questions[index];
   }
 
   addUser(userId) {
@@ -36,6 +42,7 @@ class Room {
       users: this.users,
       difficulty: this.difficulty,
       category: this.category,
+      questions: this.questions,  // Include the question in the room's JSON representation
       connectedUsers: Array.from(this.connectedUsers),
       code: this.code,
       createdAt: this.createdAt,
@@ -43,13 +50,14 @@ class Room {
   }
 }
 
+
 class RoomManager {
   constructor() {
     this.rooms = new Map();
   }
 
-  createRoom(id, users, difficulty, category) {
-    const room = new Room(id, users, difficulty, category);
+  createRoom(id, users, difficulty, category, question) {
+    const room = new Room(id, users, difficulty, category, question);
     this.rooms.set(id, room);
     return room;
   }
@@ -66,6 +74,7 @@ class RoomManager {
     return Array.from(this.rooms.values());
   }
 }
+
 
 module.exports = {
   Room,

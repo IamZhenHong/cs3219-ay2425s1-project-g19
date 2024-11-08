@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import Editor from "@monaco-editor/react";
-import { useParams, useLocation } from "react-router-dom";
 import { askCopilot } from "../../api/CopilotApi";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import Editor, { useMonaco } from "@monaco-editor/react";
 import ChatHeader from "../../components/chat/ChatHeader.js";
 import Text from "../../components/chat/Text.js";
 import TextInput from "../../components/chat/TextInput.js";
+
 const languages = [
   { label: "JavaScript", value: "javascript" },
   { label: "Python", value: "python" },
@@ -20,36 +21,24 @@ const COLLABORATION_WS_URL =
 const CollaborationRoom = () => {
   const [status, setStatus] = useState("Connecting...");
   const { roomId } = useParams();
-  // const [userId, setUserId] = useState(
-  //   `user-${Math.random().toString(36).substr(2, 9)}`
-  // ); // Create a unique user ID.
   const [message, setMessage] = useState(""); // Track the input message
   const [messages, setMessages] = useState([]); // Store all chat messages
   const location = useLocation();
   const { difficulty, category, userId, matchedUserId } = location.state || {};
-
-  // Generate the userId only once when the component is first mounted
-  // const userId = useRef(`user-${Math.random().toString(36).substr(2, 9)}`).current;
-
+  const [question, setQuestion] = useState(null);
   const [ws, setWs] = useState(null); // Manage the WebSocket connection here.
   const [code, setCode] = useState("// Start coding...");
   const [language, setLanguage] = useState("javascript");
+  const editorRef = useRef(null);
+  const monaco = useMonaco();
+  const navigate = useNavigate(); // For navigation
 
   const [userPrompt, setUserPrompt] = useState(""); // Track the user input for the prompt
   const [copilotResponse, setCopilotResponse] = useState(""); // Store the response from Copilot API
-  const monacoRef = useRef(null); // Store reference to Monaco instance
-  const editorRef = useRef(null); // Store reference to Monaco Editor instance
-
-  // Store the cursor positions of other users
-  const [userCursors, setUserCursors] = useState({});
 
   // Create a WebSocket connection when the component mounts.
   useEffect(() => {
-    //     const websocket = new WebSocket("ws://localhost:8003");
-
     const websocket = new WebSocket(COLLABORATION_WS_URL);
-
-    let pingInterval;
 
     websocket.onopen = () => {
       console.log("WebSocket connected.");
@@ -77,7 +66,6 @@ const CollaborationRoom = () => {
           ...prev,
           { userId: result.userId, message: result.message },
         ]);
-        console.log(userId);
       } else if (result.type === "CREATE_SUCCESS") {
         // Room created successfully, now join the room
         websocket.send(
@@ -87,10 +75,34 @@ const CollaborationRoom = () => {
             userId,
           })
         );
+        if (result.questions) {
+          const randomIndex = Math.floor(
+            Math.random() * result.questions.length
+          );
+
+          websocket.send(
+            JSON.stringify({
+              type: "SET_QUESTION",
+              roomId: roomId,
+              randomNumber: randomIndex,
+              userId: userId,
+            })
+          );
+        }
+      } else if (result.type === "QUESTION_SET") {
+        setQuestion(result.question);
       } else if (result.type === "CODE_UPDATE") {
         setCode(result.code);
-      } else if (result.type === "CREATE_FAILURE") {
-        setStatus(`Failed to create room: ${result.message}`);
+      } else if (result.type === "USER_LEFT") {
+        userLeaveRoom();
+      } else if (result.type === "ROOM_EXIST") {
+        websocket.send(
+          JSON.stringify({
+            type: "JOIN_ROOM",
+            roomId,
+            userId,
+          })
+        );
       } else if (result.type === "LANGUAGE_CHANGE") {
         setLanguage(result.language);
       } else if (result.type === "ASK_COPILOT") {
@@ -104,7 +116,6 @@ const CollaborationRoom = () => {
     };
 
     websocket.onclose = (event) => {
-      clearInterval(pingInterval); // Clear the ping interval
       setStatus(
         `WebSocket closed: Code = ${event.code}, Reason = ${event.reason}`
       );
@@ -117,9 +128,39 @@ const CollaborationRoom = () => {
 
     // Cleanup WebSocket when the component unmounts
     return () => {
-      websocket.close(); // Properly close the WebSocket on unmount to prevent multiple connections
+      websocket.close();
     };
-  }, [roomId, matchedUserId, difficulty, category, userId]); // Ensure userId is stable and consistent
+  }, [roomId, matchedUserId, difficulty, category, userId]);
+
+  // Warn user before navigating away or refreshing the page
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = ""; // Modern browsers require this to show the confirmation dialog.
+    };
+
+    // Add the event listener for refreshing or closing the tab
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      // Clean up the event listener
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  // Function to handle the "Leave Room" button click
+  const handleLeaveRoom = () => {
+    const confirmation = window.confirm(
+      "Are you sure you want to leave the room?"
+    );
+    if (confirmation) {
+      navigate("/"); // Navigate the user out of the room
+    }
+  };
+
+  const userLeaveRoom = () => {
+    navigate("/"); // Navigate the user out of the room
+  };
 
   const onCodeChange = (newCode) => {
     setCode(newCode);
@@ -135,7 +176,6 @@ const CollaborationRoom = () => {
     }
   };
 
-  // Handle cursor position updates and send them to the WebSocket server
   const onLanguageChange = (language) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
@@ -148,47 +188,6 @@ const CollaborationRoom = () => {
       );
     }
   };
-
-  // // Save reference to Monaco editor and set up cursor position listener
-  // const handleEditorDidMount = (editor, monaco) => {
-  //   editorRef.current = editor;
-  //   monacoRef.current = monaco; // Save monaco instance for later use
-
-  //   // Listen for cursor position changes
-  //   editor.onDidChangeCursorPosition((event) => {
-  //     const position = editor.getPosition(); // { lineNumber, column }
-  //     onCursorChange(position); // Send the new cursor position to the WebSocket server
-  //   });
-  // };
-
-  // // Display the other users' cursor positions
-  // const renderUserCursors = () => {
-  //   const editor = editorRef.current;
-  //   const monaco = monacoRef.current;
-  //   if (!editor || !monaco) return null;
-
-  //   Object.keys(userCursors).forEach((userId) => {
-  //     const cursorPosition = userCursors[userId];
-  //     if (cursorPosition) {
-  //       const { lineNumber, column } = cursorPosition;
-
-  //       // Add a decoration for other users' cursor positions
-  //       editor.deltaDecorations([], [{
-  //         range: new monaco.Range(lineNumber, column, lineNumber, column),
-  //         options: {
-  //           className: 'other-user-cursor',
-  //           isWholeLine: false
-  //         }
-  //       }]);
-  //     }
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   if (editorRef.current) {
-  //     renderUserCursors();
-  //   }
-  // }, [userCursors]);
 
   const sendMessage = (event) => {
     event.preventDefault();
@@ -215,75 +214,69 @@ const CollaborationRoom = () => {
 
     try {
       const response = await askCopilot(promptData);
+      setCopilotResponse(response);
     } catch (error) {
       console.error("Error calling Copilot API:", error);
       setCopilotResponse("Error: " + error);
     }
   };
 
-  console.log("Message:", message);
-  console.log("Messages:", messages);
+  const handleEditorDidMount = (editor) => {
+    editorRef.current = editor;
+  };
+
+  const formatCode = () => {
+    if (editorRef.current) {
+      editorRef.current.getAction("editor.action.formatDocument").run();
+    }
+  };
 
   return (
-    <div>
-      <h1>Collaboration Room: {roomId}</h1>
-      <p>Status: {status}</p>
-      <div className="flex">
-        <div className="questionContainer flex-1">Questions</div>
+    <div style={{ height: "100vh", display: "flex" }}>
+      {/* Left Section: Question + Chat */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          padding: "10px",
+          backgroundColor: "#f7f7f7",
+        }}
+      >
         <div
-          className="flex-1 flex flex-col"
-          style={{ backgroundColor: "rgb(30, 30, 30)" }}
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "10px",
+            backgroundColor: "#ffffff",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+          }}
         >
-          <div className="toolbar">
-            <label style={{ color: "rgb(255, 255, 255)" }}>
-              Select Language:{" "}
-            </label>
-
-            <select
-              value={language}
-              onChange={(e) => {
-                setLanguage(e.target.value);
-                onLanguageChange(e.target.value); // Call the language change function
-              }}
-            >
-              {languages.map((lang) => (
-                <option key={lang.value} value={lang.value}>
-                  {lang.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div
-            style={{
-              height: "80vh",
-              border: "1px solid #ddd",
-              marginTop: "10px",
-            }}
-          >
-            <Editor
-              height="100%"
-              language={language}
-              value={code}
-              // onMount={handleEditorDidMount}
-              onChange={onCodeChange}
-              theme="vs-dark"
-            />
-          </div>
+          <h1>Question: {question?.title || "Loading question..."}</h1>
+          <p>
+            {question?.description || "Please wait, the question is being loaded."}
+          </p>
         </div>
 
-        {/* <div className="chatContainer flex-1">
-          <div className="container">
-            <input
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              onKeyDown={(event) => {
-                event.key === "Enter" && sendMessage(event);
-              }}
-            ></input>
-          </div>
-        </div> */}
+        {/* Add the Leave Room Button here */}
+        <div style={{ marginTop: "10px", textAlign: "center" }}>
+          <button
+            onClick={handleLeaveRoom}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#ff4d4f",
+              color: "white",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "16px",
+            }}
+          >
+            Leave Room
+          </button>
+        </div>
 
+        {/* Chatbox Section */}
         <div className="chatMainContainer flex-1">
           <div className="chatContainer flex justify-center items-center h-screen bg-[#1A1A1D] sm:h-full ">
             <div className="container flex-1 flex-col justify-between bg-white h-[60%] w-[35%] sm:w-full sm:h-full md:w-[60%] p-0 relative">
@@ -296,23 +289,89 @@ const CollaborationRoom = () => {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Right Section: Editor */}
+      <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
+        <div style={{ padding: "10px", backgroundColor: "#333", color: "white" }}>
+          <label>Select Language: </label>
+          <select
+            value={language}
+            onChange={(e) => onLanguageChange(e.target.value)}
+          >
+            {languages.map((lang) => (
+              <option key={lang.value} value={lang.value}>
+                {lang.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Editor
+          height="90vh"
+          defaultLanguage="javascript"
+          defaultValue="// Start coding..."
+          language={language}
+          value={code}
+          onChange={onCodeChange}
+          onMount={handleEditorDidMount}
+          theme="vs-dark"
+        />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "10px",
+            backgroundColor: "#333",
+          }}
+        >
+          <button
+            onClick={formatCode}
+            style={{
+              padding: "10px",
+              backgroundColor: "#4CAF50",
+              color: "white",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Format Code
+          </button>
           <div>
-            <div className="prompt-container">
-              <textarea
-                placeholder="Enter prompt for Copilot..."
-                value={userPrompt}
-                onChange={(e) => setUserPrompt(e.target.value)}
-                rows="4"
-                cols="50"
-              />
-            </div>
-            <button onClick={handleSubmitPrompt}>Submit Code & Prompt</button>
-            <div className="copilot-response">
-              <h3>Copilot Response:</h3>
-              <pre>{copilotResponse}</pre>
-            </div>
+            <input
+              type="text"
+              value={userPrompt}
+              onChange={(e) => setUserPrompt(e.target.value)}
+              placeholder="Ask Copilot..."
+              style={{
+                padding: "5px",
+                marginRight: "10px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                width: "200px",
+              }}
+            />
+            <button
+              onClick={handleSubmitPrompt}
+              style={{
+                padding: "10px",
+                backgroundColor: "#007BFF",
+                color: "white",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              Ask Copilot
+            </button>
           </div>
         </div>
+        {/* Display Copilot Response */}
+        {copilotResponse && (
+          <div style={{ padding: "10px", backgroundColor: "#444", color: "white" }}>
+            <strong>Copilot Response:</strong>
+            <p>{copilotResponse}</p>
+          </div>
+        )}
       </div>
     </div>
   );
