@@ -294,7 +294,7 @@ const CollaborationRoom = () => {
 
       {/* Right Section: Editor */}
       <div style={{ flex: 2, display: "flex", flexDirection: "column" }}>
-        <div style={{ padding: "10px", backgroundColor: "#333", color: "white" }}>
+        <div style={{ padding: "10px", backgroundColor: "#333", color: "black" }}>
           <label>Select Language: </label>
           <select
             value={language}
