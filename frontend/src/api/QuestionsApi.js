@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Define the base URL for your API
-const API_URL = "http://localhost:8001/questions";
+const QUESTIONS_API_URL = process.env.REACT_APP_QUESTIONS_API_URL || "http://localhost:8001/questions";
 
 // Create a function to add a question
 export const addQuestion = async (data) => {
@@ -11,8 +11,8 @@ export const addQuestion = async (data) => {
     if (!token) {
       throw new Error("No token found, please log in.");
     }
-    
-    const response = await axios.post(API_URL, data, {
+
+    const response = await axios.post(QUESTIONS_API_URL, data, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -40,8 +40,8 @@ export const getQuestionList = async (id) => {
     if (!token) {
       throw new Error("No token found, please log in.");
     }
-    
-    const response = await axios.get(API_URL, {
+
+    const response = await axios.get(QUESTIONS_API_URL, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -65,8 +65,8 @@ export const getQuestion = async (id) => {
     if (!token) {
       throw new Error("No token found, please log in.");
     }
-    
-    const response = await axios.get(`${API_URL}/${id}`, {
+
+    const response = await axios.get(`${QUESTIONS_API_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -83,6 +83,32 @@ export const getQuestion = async (id) => {
   }
 };
 
+export const getQuestionByCriteria = async (difficulty, categories) => {
+  try {
+    const token = sessionStorage.getItem("token");
+
+    if (!token) {
+      throw new Error("No token found, please log in.");
+    }
+    
+    const response = await axios.get(`${QUESTIONS_API_URL}/${difficulty}/${categories}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Include the token for verification
+      },
+    });
+
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Fetch question failed, please try again.");
+    }
+  } catch (error) {
+    console.error("Error fetching question:", error);
+    throw error;
+  }
+};
+
+
 // Function to delete a specific question by ID
 export const deleteQuestion = async (id) => {
   try {
@@ -91,8 +117,8 @@ export const deleteQuestion = async (id) => {
     if (!token) {
       throw new Error("No token found, please log in.");
     }
-    
-    const response = await axios.delete(`${API_URL}/${id}`, {
+
+    const response = await axios.delete(`${QUESTIONS_API_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -116,8 +142,8 @@ export const updateQuestion = async (id, updatedData) => {
     if (!token) {
       throw new Error("No token found, please log in.");
     }
-    
-    const response = await axios.patch(`${API_URL}/${id}`, updatedData, {
+
+    const response = await axios.patch(`${QUESTIONS_API_URL}/${id}`, updatedData, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },

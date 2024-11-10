@@ -18,6 +18,7 @@ import MatchingPage from "./pages/student/MatchingPage";
 import RightSidebar from "./components/student/RightSidebar";
 import SettingPage from "./pages/student/SettingPage";
 import HistoryPage from "./pages/student/HistoryPage";
+import CollaborationRoom from "./pages/student/CollaborationRoom";
 
 export const UserContext = createContext();
 
@@ -78,11 +79,13 @@ function App() {
             <div className="flex-1 flex flex-col bg-[#ffffff]">
               <Header />
               <main className="pr-[20rem] pb-[1.5rem] flex h-full">
-                <div className="main-layout flex-1 bg-[#EDEDED] border-2 border-white rounded-[1.5rem] overflow-auto">
+                <div className="main-layout flex-1 bg-[#EDEDED] border-2 border-[#e0e0e0] rounded-[1.5rem] overflow-auto shadow-lg">
                   <Routes>
                     <Route path="/" element={<MatchingPage />} />
                     <Route path="/settings" element={<SettingPage />} />
                     <Route path="/history" element={<HistoryPage />} />
+                    <Route path="/room/:roomId" element={<CollaborationRoom />} />
+                    <Route path="*" element={<h1>404 Not Found</h1>} />
                   </Routes>
                 </div>
                 <RightSidebar />

@@ -10,6 +10,7 @@ const {
   findUserByUsernameOrEmail: _findUserByUsernameOrEmail,
   updateUserById: _updateUserById,
   updateUserPrivilegeById: _updateUserPrivilegeById,
+  addNewSession: _addNewSession,
 } = require("../model/repository.js");
 
 const createUser = async (req, res) => {
@@ -178,8 +179,26 @@ const formatUserResponse = (user) => {
     email: user.email,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
+    sessionHistory: user.sessionHistory
   };
 }
+
+const addSessionToUser = async (req, res) => {
+  const userId = req.params.id; // Extract userId from route params
+  const sessionData = req.body; // Get session data from request body
+
+  try {
+    const updatedUser = await _addNewSession(userId, sessionData);
+    if (updatedUser) {
+      return res.status(200).json({ message: "Session added successfully", data: updatedUser });
+    } else {
+      return res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error adding session:", error);
+    return res.status(500).json({ message: "Error adding session" });
+  }
+};
 
 module.exports = {
   createUser,
@@ -189,5 +208,6 @@ module.exports = {
   updateUser,
   updateUserPrivilege,
   deleteUser,
-  formatUserResponse
+  formatUserResponse,
+  addSessionToUser
 };

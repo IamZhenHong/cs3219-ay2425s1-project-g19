@@ -1,12 +1,13 @@
 import axios from "axios";
 
 // Define the base URL for your API
-const API_URL = "http://localhost:8000/users";
+const USER_API_URL =
+  process.env.REACT_APP_USER_API_URL || "http://localhost:8000/users";
 
 // Create a function to create account
 export const createAccount = async (data) => {
   try {
-    const response = await axios.post(API_URL, data);
+    const response = await axios.post(USER_API_URL, data);
     if (response.status === 201) {
       return response.data;
     } else {
@@ -31,7 +32,7 @@ export const getAllUser = async () => {
       throw new Error("No token found, please log in.");
     }
 
-    const response = await axios.get(API_URL, {
+    const response = await axios.get(USER_API_URL, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -61,7 +62,7 @@ export const getUser = async (id) => {
       throw new Error("No token found, please log in.");
     }
 
-    const response = await axios.get(`${API_URL}/id/${id}`, {
+    const response = await axios.get(`${USER_API_URL}/id/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -91,7 +92,7 @@ export const getUserByEmail = async (email) => {
       throw new Error("No token found, please log in.");
     }
 
-    const response = await axios.get(`${API_URL}/email/${email}`, {
+    const response = await axios.get(`${USER_API_URL}/email/${email}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -121,11 +122,15 @@ export const updateUserPrivilege = async (id, data) => {
       throw new Error("No token found, please log in.");
     }
 
-    const response = await axios.patch(`${API_URL}/id/${id}/privilege`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Include the token for verification
-      },
-    });
+    const response = await axios.patch(
+      `${USER_API_URL}/id/${id}/privilege`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include the token for verification
+        },
+      }
+    );
 
     if (response.status === 200) {
       return response.data;
@@ -151,7 +156,7 @@ export const deleteUser = async (id) => {
       throw new Error("No token found, please log in.");
     }
 
-    const response = await axios.delete(`${API_URL}/id/${id}`, {
+    const response = await axios.delete(`${USER_API_URL}/id/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`, // Include the token for verification
       },
@@ -169,5 +174,26 @@ export const deleteUser = async (id) => {
     }
     console.error("Error deleting user:", error);
     throw error;
+  }
+};
+
+export const addSessionToUser = async (userId, sessionData) => {
+  try {
+    const response = await axios.post(
+      `${USER_API_URL}/${userId}/sessionHistory`,
+      sessionData
+    );
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error("Failed to add session, please try again.");
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error("Error adding session:", error.response.data);
+      throw new Error(error.response.data.message);
+    }
+    console.error("Error adding session:", error);
+    throw error; // Re-throw the error to handle it in the component
   }
 };

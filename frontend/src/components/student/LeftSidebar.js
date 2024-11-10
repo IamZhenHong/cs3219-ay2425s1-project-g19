@@ -45,7 +45,7 @@ function LeftSidebar({ onLogout }) {
   return (
     <div className="left-sidebar basis-[5rem] flex flex-col h-[100vh] bg-[#ffffff]">
       <div className="flex items-center justify-center h-[5rem]">
-        <img src={peerPrep} width={40} height={40} alt="logo" />
+        <img src={peerPrep} width={80} height={80} alt="logo" />
       </div>
 
       <div className="mt-8 flex-1 flex flex-col items-center justify-between">

@@ -25,6 +25,30 @@ const UserModelSchema = new Schema({
     required: true,
     default: false,
   },
+  // Adding sessionHistory field as an array of objects
+  sessionHistory: {
+    type: [
+      {
+        roomId: {
+          type: String,
+          required: true,
+        },
+        difficulty: {
+          type: String,
+          required: true,
+        },
+        category: {
+          type: String,
+          required: true,
+        },
+        startDate: {
+          type: Date,
+          default: Date.now, // Set start time to the current date/time by default
+        },
+      },
+    ],
+    default: [], // Initialize as an empty array
+  },
 });
 
 module.exports = mongoose.model("UserModel", UserModelSchema);
