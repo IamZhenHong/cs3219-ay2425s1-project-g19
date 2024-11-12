@@ -1,18 +1,13 @@
 class Room {
-  constructor(id, users, difficulty, category, questions) {
+  constructor(id, users, difficulty, category, question) {
     this.id = id;
     this.users = users;
     this.difficulty = difficulty;
     this.category = category;
-    this.questions = questions;  // New property to store the question
-    this.selectedQuestion = null; 
+    this.question = question;  
     this.connectedUsers = new Set(users);
     this.code = '';
     this.createdAt = Date.now();
-  }
-
-  selectQuestion(index) {
-    this.selectedQuestion = this.questions[index];
   }
 
   addUser(userId) {
@@ -42,7 +37,7 @@ class Room {
       users: this.users,
       difficulty: this.difficulty,
       category: this.category,
-      questions: this.questions,  // Include the question in the room's JSON representation
+      questions: this.question,  
       connectedUsers: Array.from(this.connectedUsers),
       code: this.code,
       createdAt: this.createdAt,

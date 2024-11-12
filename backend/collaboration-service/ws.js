@@ -1,7 +1,6 @@
 const WebSocket = require("ws");
 const { v4: uuidv4 } = require("uuid");
 const { RoomManager } = require("./roomManager");
-const { getQuestionByCriteria } = require("./api/questionApi");
 
 // Instantiate the RoomManager
 const roomManager = new RoomManager();
@@ -83,8 +82,8 @@ function handleMessage(ws, data) {
 
 // Function to handle room creation
 async function handleCreateRoom(ws, data) { 
-  const { roomId, users, difficulty, category } = data;
-
+  const { roomId, users, difficulty, category, question } = data;
+  
   wsClients.set(data.users[0], ws);
   ws.userId = data.users[0];
 
@@ -93,12 +92,7 @@ async function handleCreateRoom(ws, data) {
   ws.userId = users[0];
 
   try {
-    const categoryString = Array.isArray(category) 
-        ? category.join(',') 
-        : category;
-    const questions = await getQuestionByCriteria(difficulty, categoryString);
-
-    const newRoom = roomManager.createRoom(roomId, users, difficulty, category, questions);
+    const newRoom = roomManager.createRoom(roomId, users, difficulty, category, question);
 
     // Send confirmation to the client that room was created successfully
     ws.send(
@@ -106,7 +100,7 @@ async function handleCreateRoom(ws, data) {
         type: "CREATE_SUCCESS",
         message: `Room ${roomId} created successfully`,
         room: newRoom.toJSON(),
-        questions: newRoom.questions
+        questions: newRoom.question
       })
     );
   } catch (error) {
@@ -134,32 +128,6 @@ function handleSendMessage(ws, data) {
     );
   } else {
     console.error(`Room ${roomId} not found for user ${userId}`);
-  }
-}
-
-function handleSetQuestion(ws, data) {
-  const { roomId, randomNumber, userId } = data;
-  const room = roomManager.getRoom(roomId);
-
-  if (room) {
-    room.selectQuestion(randomNumber);
-    broadcastToRoom(
-      roomId,
-      {
-        type: "QUESTION_SET",
-        question: room.selectedQuestion,
-        userId
-      },
-      userId
-    );
-  } else {
-    console.error(`Room ${roomId} not found for user ${ws.userId}`);
-    ws.send(
-      JSON.stringify({
-        type: "SET_QUESTION_FAILURE",
-        message: `Room ${roomId} not found.`,
-      })
-    );
   }
 }
 

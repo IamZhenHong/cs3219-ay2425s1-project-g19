@@ -7,10 +7,10 @@ const roomManager = new RoomManager();
 // @route   POST /create
 // @access  Public
 const createRoom = async (req, res) => {
-  const { users, difficulty, category } = req.body;
+  const { users, difficulty, category, question } = req.body;
   const roomId = uuidv4();
 
-  const room = roomManager.createRoom(roomId, users, difficulty, category);
+  const room = roomManager.createRoom(roomId, users, difficulty, category, question);
 
   res.json({
     success: true,
