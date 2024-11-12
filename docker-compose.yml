@@ -56,7 +56,6 @@ services:
       - LOCAL_RABBITMQ_URL=amqp://rabbitmq:5672
       - COLLAB_SERVICE_URL=http://collaboration:8003
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - QUESTIONS_API_URL=http://questions:8001
     ports:
       - "8003:8003"
     networks:
@@ -78,6 +77,7 @@ services:
       - PORT=8002
       - LOCAL_RABBITMQ_URL=amqp://rabbitmq:5672
       - COLLAB_SERVICE_URL=http://collaboration:8003
+      - QUESTIONS_API_URL=http://questions:8001
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
     ports:
       - "8002:8002"
