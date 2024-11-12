@@ -6,6 +6,7 @@ import ChatHeader from "../../components/chat/ChatHeader.js";
 import Text from "../../components/chat/Text.js";
 import TextInput from "../../components/chat/TextInput.js";
 import { addSessionToUser } from "../../api/UserApi.js"
+import Modal from 'react-modal';
 
 const languages = [
   { label: "JavaScript", value: "javascript" },
@@ -35,7 +36,9 @@ const CollaborationRoom = () => {
 
   const [userPrompt, setUserPrompt] = useState(""); // Track the user input for the prompt
   const [copilotResponse, setCopilotResponse] = useState(""); // Store the response from Copilot API
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
 
+  
   // Create a WebSocket connection when the component mounts.
   useEffect(() => {
     const websocket = new WebSocket(COLLABORATION_WS_URL);
@@ -156,9 +159,15 @@ const CollaborationRoom = () => {
     }
   };
 
-  const userLeaveRoom = () => {
-    navigate("/"); // Navigate the user out of the room
+  const handleModalClose = () => {
+    // Close the modal and navigate to the home page
+    setShowModal(false);
+    navigate("/"); // Redirect to the home page
   };
+
+  const userLeaveRoom = () => {
+    setShowModal(true);
+  };  
 
   const onCodeChange = (newCode) => {
     setCode(newCode);
@@ -275,6 +284,49 @@ const CollaborationRoom = () => {
           >
             Leave Room
           </button>
+          <Modal
+            isOpen={showModal}
+            onRequestClose={handleModalClose} 
+            contentLabel="User Left Room"
+            style={{
+              content: {
+                padding: "20px",
+                backgroundColor: "#fff",
+                borderRadius: "8px",
+                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                alignContent: "center",
+                width: "300px", 
+                margin: "auto",
+                textAlign: "center", 
+                
+                height: "25vh"
+              },
+              overlay: {
+                backgroundColor: "rgba(0, 0, 0, 0.3)", // Semi-transparent background
+                display: "flex", // To center modal vertically
+                justifyContent: "center", // Center horizontally
+                alignItems: "center", 
+              },
+            }}
+          >
+            <h2 style={{ marginBottom: "15px" }}>The other user has left the room</h2>
+            <p style={{ marginBottom: "20px" }}>You are being redirected to the home page.</p>
+            <button
+              onClick={handleModalClose}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#4CAF50",
+                color: "white",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "16px",
+                border: "none",
+                marginTop: "10px", // Add some space between the text and button
+              }}
+            >
+              OK
+            </button>
+          </Modal>
         </div>
 
         {/* Chatbox Section */}
