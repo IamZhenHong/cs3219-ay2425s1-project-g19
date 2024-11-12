@@ -174,18 +174,21 @@ const CollaborationRoom = () => {
     }
   };
 
-  const onLanguageChange = (language) => {
+  const onLanguageChange = (newLanguage) => {
+    setLanguage(newLanguage);
+  
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(
         JSON.stringify({
           type: "LANGUAGE_CHANGE",
           roomId: roomId,
-          language: language,
+          language: newLanguage,
           userId: userId,
         })
       );
     }
   };
+  
 
   const sendMessage = (event) => {
     event.preventDefault();
