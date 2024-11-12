@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 // Define the base URL for your API
-const API_URL =  "http://localhost:8001/questions";
+const API_URL = `${process.env.QUESTIONS_API_URL}/questions` || "http://localhost:8001/questions";
 
 const getQuestionByCriteria = async (difficulty, category) => {
   try {
