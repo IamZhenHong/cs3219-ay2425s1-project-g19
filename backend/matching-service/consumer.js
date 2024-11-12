@@ -1,5 +1,5 @@
 const { Mistral } = require('@mistralai/mistralai');
-
+const { getQuestionByCriteria } = require("./api/questionApi");
 
 const amqp = require('amqplib/callback_api');
 const { sendWsMessage } = require('./ws');
@@ -91,11 +91,17 @@ const setupConsumer = () => {
             try {
               console.log(`Matched user ${userRequest.userId} with user ${match.userId}`);
 
+              const categoryString = Array.isArray(userRequest.category) 
+                  ? userRequest.category.join(',') 
+                  : userRequest.category;
+
               // Create room in collaboration service
+              const question = await getQuestionByCriteria(userRequest.difficulty, categoryString);
               const response = await axios.post(`${COLLAB_SERVICE_URL}/rooms/create`, {
                 users: [userRequest.userId, match.userId],
                 difficulty: userRequest.difficulty,
-                category: userRequest.category
+                category: userRequest.category,
+                question: question
               });
               console.log(response.data);
               const { roomId } = response.data;
@@ -107,7 +113,8 @@ const setupConsumer = () => {
                   roomId,
                   matchedUserId: user === userRequest ? match.userId : userRequest.userId,
                   difficulty: userRequest.difficulty,
-                  category: userRequest.category
+                  category: userRequest.category,
+                  question: question
                 });
               });
 

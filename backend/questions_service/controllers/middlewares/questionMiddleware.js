@@ -25,6 +25,7 @@ const getQuestionByCriteria = async (req, res, next) => {
     try {
         const categoryArray = categories.split(',').map(category => category.trim());
 
+        // Find the questions matching the criteria
         questions = await Question.find({
             complexity: { $regex: new RegExp(difficulty, "i") },  
             category: { $in: categoryArray.map(cat => new RegExp(cat, "i")) }  
@@ -34,13 +35,19 @@ const getQuestionByCriteria = async (req, res, next) => {
             return res.status(404).json({ message: 'No questions found for the given criteria' });
         }
 
+        // Pick a random question
+        const randomIndex = Math.floor(Math.random() * questions.length);
+        const randomQuestion = questions[randomIndex];
+
+        // Assign the random question to res.question
+        res.question = randomQuestion;
+        next();
+        
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
-
-    res.question = questions;
-    next();
 };
+
 
 
 

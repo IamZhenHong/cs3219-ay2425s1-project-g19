@@ -25,8 +25,7 @@ const CollaborationRoom = () => {
   const [message, setMessage] = useState(""); // Track the input message
   const [messages, setMessages] = useState([]); // Store all chat messages
   const location = useLocation();
-  const { difficulty, category, userId, matchedUserId } = location.state || {};
-  const [question, setQuestion] = useState(null);
+  const { difficulty, category, userId, matchedUserId, question } = location.state || {};
   const [ws, setWs] = useState(null); // Manage the WebSocket connection here.
   const [code, setCode] = useState("// Start coding...");
   const [language, setLanguage] = useState("javascript");
@@ -53,6 +52,7 @@ const CollaborationRoom = () => {
           users: [userId, matchedUserId],
           difficulty: difficulty,
           category: category,
+          question: question
         })
       );
     };
@@ -89,23 +89,6 @@ const CollaborationRoom = () => {
         } catch (error) {
           console.error("Failed to add sessionData to " + userId, error);
         }
-
-        if (result.questions) {
-          const randomIndex = Math.floor(
-            Math.random() * result.questions.length
-          );
-
-          websocket.send(
-            JSON.stringify({
-              type: "SET_QUESTION",
-              roomId: roomId,
-              randomNumber: randomIndex,
-              userId: userId,
-            })
-          );
-        }
-      } else if (result.type === "QUESTION_SET") {
-        setQuestion(result.question);
       } else if (result.type === "CODE_UPDATE") {
         setCode(result.code);
       } else if (result.type === "USER_LEFT") {

@@ -84,25 +84,7 @@ const MatchingPage = () => {
         setStatus("User information not loaded. Please try again.");
         return;
       }
-  
-      // // Convert the category array into a comma-separated string
-      // const categoryString = Array.isArray(submission.category) 
-      //   ? submission.category.join(',') 
-      //   : submission.category;  // Handle case if category is already a string
-      // console.log(categoryString);
-      // console.log(submission.difficulty);
-      
-      // // Fetch the question and wait for the response
-      // const fetchedQuestion = await fetchQuestion(submission.difficulty, categoryString);
-
-      // // Check if a question exists
-      // if (!fetchedQuestion) {
-      //   // If no question, show an alert or dialog box
-      //   alert("No question found for the selected criteria. Please change your choices.");
-      //   setStatus("No question available. Please change your criteria.");
-      //   return;
-      // }
-  
+    
       setStatus("Finding a match...");
       setCountdown(timeout);
       setIsMatching(true);
@@ -125,7 +107,7 @@ const MatchingPage = () => {
       try {
         const data = {
           userId: currentUserInfo.id,
-          category: submission.category,  // Send the converted string
+          category: submission.category, 
           difficulty: submission.difficulty,
         };
   
@@ -147,10 +129,10 @@ const MatchingPage = () => {
             navigate(`/room/${result.roomId}`, {
               state: {
                 difficulty: submission.difficulty,
-                category: submission.category,  // Pass the string representation of categories
+                category: submission.category,
                 userId: currentUserInfo.id,
                 matchedUserId: result.matchedUserId,
-                // question: fetchedQuestion, // Pass the selected question directly from the response
+                question: result.question, 
               },
             });
             setIsMatching(false);
